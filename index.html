@@ -765,8 +765,20 @@ document.getElementById("gform").addEventListener("submit", function(ev){
   if(phone.length<10){ showErr("gPhone",1); ok=false; } else showErr("gPhone",0);
   if(!ok) return;
 
-  var lead={ name:name, email:email, phone:phone, buyer_type:document.getElementById("gType").value,
-             deal:(pendingAction&&pendingAction.id)||"", views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
+  var dealId=(pendingAction&&pendingAction.id)||"";
+  var pd=DEALS.find(function(x){return x.id===dealId;})||null;
+  var lead={
+    name:name, first_name:name.split(" ")[0], last_name:name.split(" ").slice(1).join(" "),
+    email:email, phone:phone, buyer_type:document.getElementById("gType").value,
+    // which property they signed up for (blank for a general / "How It Works" signup)
+    deal:dealId, property_id:pd?pd.id:"",
+    property_name:pd?pd.name:"", property:pd?(pd.street+", "+pd.city+", "+pd.state+" "+pd.zip):"",
+    property_price:pd?("$"+Number(pd.price).toLocaleString("en-US")):"",
+    property_arv:pd?(pd.arv?("$"+Number(pd.arv).toLocaleString("en-US")):pd.arvText):"",
+    property_market:pd?pd.market:"", property_county:pd?pd.county:"",
+    property_url:pd?(location.origin+location.pathname+"?deal="+pd.id):location.href,
+    intent:(pendingAction&&pendingAction.type)||"general",
+    views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
   sendLead(lead);
 
   unlocked=true;
