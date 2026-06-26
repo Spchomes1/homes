@@ -386,13 +386,14 @@ var VID = (function(){
 })();
 function getViews(){ try{ return JSON.parse(localStorage.getItem("spc_views")||"{}"); }catch(e){ return {}; } }
 function bumpView(id){ var v=getViews(); v[id]=(v[id]||0)+1; try{ localStorage.setItem("spc_views",JSON.stringify(v)); }catch(e){} return v[id]; }
-function trackEvent(type, deal){
+function trackEvent(type, deal, extra){
   var lead={}; try{ lead=JSON.parse(localStorage.getItem("spc_lead")||"{}"); }catch(e){}
   var payload={ type:type, vid:VID, label:VID.slice(0,4),
     deal: deal?deal.id:"", address: deal?(deal.street+", "+deal.city+", "+deal.state+" "+deal.zip):"",
     price: deal?deal.price:"", views: deal?(getViews()[deal.id]||0):0,
-    name: lead.name||"", email: lead.email||"", phone: lead.phone||"",
+    name: lead.name||"", email: lead.email||"", phone: lead.phone||"", buyer_type: lead.buyer_type||"",
     ts: new Date().toISOString(), ref: document.referrer||"" };
+  if(extra){ for(var k in extra){ payload[k]=extra[k]; } }
   if(!TRACK_URL){ console.log("[SPC track]", type, payload.deal||"-", "view#"+payload.views, "(no TRACK_URL set)"); return; }
   try{ fetch(TRACK_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),keepalive:true}).catch(function(){}); }catch(e){}
 }
@@ -739,7 +740,7 @@ document.getElementById("gform").addEventListener("submit", function(ev){
 
   unlocked=true;
   try{ localStorage.setItem("spc_unlocked","1"); localStorage.setItem("spc_lead",JSON.stringify(lead)); }catch(e){}
-  trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null);
+  trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null, {buyer_type:lead.buyer_type, viewsAll:getViews()});
   document.getElementById("welcomeLine").textContent="Welcome, "+name.split(" ")[0]+" · full access unlocked";
   closeGate();
   render();
