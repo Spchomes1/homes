@@ -112,10 +112,10 @@ a{color:var(--blue);text-decoration:none}
 .ov.open{display:flex}
 .modal{background:#fff;width:100%;max-width:980px;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden;position:relative}
 .modal .close{position:absolute;top:14px;right:16px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.95);font-size:22px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);line-height:1}
-.mgal{display:grid;gap:6px;background:#1d2030;overflow:hidden}
-.mgal.mosaic{grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;height:430px}
-.mgal.two{grid-template-columns:1fr 1fr;height:400px}
-.mgal.one{grid-template-columns:1fr;height:420px}
+.mgal{display:grid;gap:6px;background:#1d2030;max-height:430px}
+.mgal.mosaic{grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr}
+.mgal.two{grid-template-columns:1fr 1fr;max-height:400px}
+.mgal.one{grid-template-columns:1fr;max-height:420px}
 .mgal .big{grid-row:span 2;grid-column:1}
 .mgal figure.locked img{filter:blur(16px) brightness(.85);transform:scale(1.08)}
 .mgal figure{margin:0;position:relative;overflow:hidden;cursor:pointer}
@@ -229,7 +229,7 @@ a{color:var(--blue);text-decoration:none}
   .subbar .in{flex-direction:column;height:auto;padding:12px 16px;gap:12px;align-items:stretch}
   .selectors{width:100%}
   .who{justify-content:flex-start}
-  .mgal.mosaic{grid-template-columns:1fr 1fr;height:auto}
+  .mgal.mosaic{grid-template-columns:1fr 1fr;max-height:none}
   .mgal .big{grid-column:span 2;grid-row:auto}
   .hdr .logo span{display:none}
 }
@@ -421,7 +421,7 @@ var DEALS = [
     beds:2, baths:1, sqft:728, year:1940, lot:"0.09 ac",
     price:80000, arv:190000, arvText:"$190K", spread:110000,
     lat:32.75289, lng:-96.74762, listingId:null, photoExt:"jpg",
-    photos:["https://files.catbox.moe/s2noh6.jpg"],
+    photos:["photos/frost/01.jpg"],
     desc:"Off-market <strong>cash opportunity in South Dallas / Fair Park</strong> (75215) — roughly 1 mile from Fair Park and 3 miles to Downtown Dallas, with Deep Ellum and the Baylor medical district close by. A 2/1 frame cottage on a 3,850 sf lot inside the City's South Dallas/Fair Park Area Plan redevelopment corridor. Priced as a <strong>full-gut rehab or scrape-and-build infill lot</strong>, with a $110K spread to a $190K ARV.",
     cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["TBD",""],Interior:["Gut rehab","bad"]},
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Vacant &nbsp;|&nbsp; Close 7/22/26 &nbsp;|&nbsp; Fidelity National Title &nbsp;|&nbsp; $3,000 non-refundable earnest money"
@@ -432,7 +432,6 @@ var DEALS = [
     beds:3, baths:2, sqft:2025, year:null, lot:"",
     price:215000, arv:350000, arvText:"$340–350K", spread:135000,
     lat:32.6940, lng:-97.4530, listingId:"bff6854b-c07d-482c-972e-f64bc183ebcd", photoExt:"jpg",
-    packet:"packets/8012-Chapin-Rd-CMA.pdf", packetName:"8012 Chapin Rd — CMA.pdf",
     photos:["a382df2e-24c6-4210-8ddc-83d7b84e67fa","6696bd0c-2d20-40fc-b5dc-e812e7e13aeb","089888a6-9b45-477f-a181-2ec84a368237","e9e83565-dcf3-440d-b66c-b87719897870","c7b6b273-84a0-4ed9-9560-b008f825c4b8","899f8894-429d-4c30-b3be-e3c5dd45848a","33a31aa1-685b-4941-93fa-ebe041e1552d","95a62013-5deb-413c-b16b-cca352bd5ec8"],
     desc:"Off-market cash opportunity in one of <strong>Fort Worth's most established inner-ring submarkets</strong>. Single-story brick ranch with genuine square footage and solid bones in Benbrook, just off Loop 820 / I-30 — a full-rehab <strong>fix-and-flip or long-term rental</strong> in a tight, high-demand area.",
     cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["Needs work","bad"],Interior:["Full cosmetic","bad"]},
@@ -444,7 +443,6 @@ var DEALS = [
     beds:3, baths:1, sqft:1096, year:null, lot:"",
     price:155000, arv:300000, arvText:"$295–300K", spread:145000,
     lat:32.7360, lng:-96.8755, listingId:"a908be2c-3037-4d02-94a4-e6f99a3821d3", photoExt:"jpg",
-    packet:"packets/3834-Shelley-Blvd-CMA.pdf", packetName:"3834 Shelley Blvd — CMA.pdf",
     photos:["8ccb9b5c-8259-486a-9b6b-55a6a1f5fa29","e3a60535-59d2-4005-9d3a-571f19ee81f5","da87a9a9-0d04-4ffa-960a-9c47d2149e14","1c922614-b848-44b6-b4aa-d21a1a2eb9b4","7b1abb4c-c8d1-4a28-a873-323cac63e29b","5faf7382-eb0d-4d81-8c74-d8b359146418","e7d6c600-3871-410c-ae16-efa34a1381fe","ad9a6bf9-67e9-419e-8003-c64144a79f04"],
     desc:"Off-market <strong>fix-and-flip in Oak Cliff / southwest Dallas</strong> (75211). A classic 3/1 with a strong ARV spread in a steadily appreciating, rental-heavy pocket close to downtown. Bring your contractor and walk it before you offer.",
     cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["TBD",""],Interior:["Full cosmetic","bad"]},
@@ -621,14 +619,6 @@ function copyDealLink(id, btn){
   if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done, function(){ prompt("Copy this link:", url); }); }
   else { prompt("Copy this link:", url); }
 }
-function downloadPacket(id){
-  var d = DEALS.find(function(x){return x.id===id;});
-  if(!d || !d.packet) return;
-  trackEvent("packet", d);
-  var a = document.createElement("a");
-  a.href = d.packet; a.download = d.packetName || "deal-packet.pdf"; a.rel = "noopener";
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-}
 
 function modalHTML(d){
   var hasPhotos = d.photos && d.photos.length>0;
@@ -683,16 +673,9 @@ function modalHTML(d){
     condBlock = '<h3 class="h3">Property Condition</h3><table class="dl">'+rows+'</table>';
   }
 
-  var docs;
-  if(!unlocked){
-    docs = '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
-  } else if(d.packet){
-    docs = '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>MLS comps (CMA) for '+esc(d.street)+' — scope, title &amp; access on request.</p></div>'+
-           '<a class="b3" style="flex:none;padding:10px 16px;text-decoration:none" href="'+d.packet+'" download="'+esc(d.packetName||"deal-packet.pdf")+'" onclick="trackEvent(\'packet\',modalDeal)">📄 Download Comps (PDF)</a></div>';
-  } else {
-    docs = '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details — sent on request.</p></div>'+
-           '<a class="b3" style="flex:none;padding:10px 16px;text-decoration:none" href="tel:+18176972534" onclick="trackEvent(\'packet_request\',modalDeal)">&#9742; Request the Packet</a></div>';
-  }
+  var docs = unlocked
+    ? '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details.</p></div><button class="b3" style="flex:none;padding:10px 16px" onclick="window.location.href=\'tel:+18176972534\'">📄 Get the Packet</button></div>'
+    : '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
 
   var aside =
     '<div class="maside"><div class="dealcard"><div class="top">'+
@@ -765,20 +748,8 @@ document.getElementById("gform").addEventListener("submit", function(ev){
   if(phone.length<10){ showErr("gPhone",1); ok=false; } else showErr("gPhone",0);
   if(!ok) return;
 
-  var dealId=(pendingAction&&pendingAction.id)||"";
-  var pd=DEALS.find(function(x){return x.id===dealId;})||null;
-  var lead={
-    name:name, first_name:name.split(" ")[0], last_name:name.split(" ").slice(1).join(" "),
-    email:email, phone:phone, buyer_type:document.getElementById("gType").value,
-    // which property they signed up for (blank for a general / "How It Works" signup)
-    deal:dealId, property_id:pd?pd.id:"",
-    property_name:pd?pd.name:"", property:pd?(pd.street+", "+pd.city+", "+pd.state+" "+pd.zip):"",
-    property_price:pd?("$"+Number(pd.price).toLocaleString("en-US")):"",
-    property_arv:pd?(pd.arv?("$"+Number(pd.arv).toLocaleString("en-US")):pd.arvText):"",
-    property_market:pd?pd.market:"", property_county:pd?pd.county:"",
-    property_url:pd?(location.origin+location.pathname+"?deal="+pd.id):location.href,
-    intent:(pendingAction&&pendingAction.type)||"general",
-    views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
+  var lead={ name:name, email:email, phone:phone, buyer_type:document.getElementById("gType").value,
+             deal:(pendingAction&&pendingAction.id)||"", views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
   sendLead(lead);
 
   unlocked=true;
@@ -790,7 +761,6 @@ document.getElementById("gform").addEventListener("submit", function(ev){
   if(pendingAction){
     var act=pendingAction.type, id=pendingAction.id;
     if(id && (act==="address"||act==="photos"||act==="docs")) openModal(id);
-    if(act==="docs" && id){ setTimeout(function(){ downloadPacket(id); }, 450); }
     if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
   }
 });
