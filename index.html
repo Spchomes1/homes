@@ -375,6 +375,28 @@ a{color:var(--blue);text-decoration:none}
 // Until set, the gate still unlocks so the page is fully usable.
 var GHL_LEAD_WEBHOOK = "";
 
+// ===== VISITOR TRACKING — logs every property view to your Google Sheet =====
+// Paste your Google Apps Script web-app /exec URL here (see TRACKING_SETUP.md).
+// Until set, views are still counted per-browser and ride along with each lead.
+var TRACK_URL = "";
+var VID = (function(){
+  var v=""; try{ v=localStorage.getItem("spc_vid")||""; }catch(e){}
+  if(!v){ v=(Math.random().toString(16).slice(2,10)+Math.random().toString(16).slice(2,6)); try{ localStorage.setItem("spc_vid",v); }catch(e){} }
+  return v;
+})();
+function getViews(){ try{ return JSON.parse(localStorage.getItem("spc_views")||"{}"); }catch(e){ return {}; } }
+function bumpView(id){ var v=getViews(); v[id]=(v[id]||0)+1; try{ localStorage.setItem("spc_views",JSON.stringify(v)); }catch(e){} return v[id]; }
+function trackEvent(type, deal){
+  var lead={}; try{ lead=JSON.parse(localStorage.getItem("spc_lead")||"{}"); }catch(e){}
+  var payload={ type:type, vid:VID, label:VID.slice(0,4),
+    deal: deal?deal.id:"", address: deal?(deal.street+", "+deal.city+", "+deal.state+" "+deal.zip):"",
+    price: deal?deal.price:"", views: deal?(getViews()[deal.id]||0):0,
+    name: lead.name||"", email: lead.email||"", phone: lead.phone||"",
+    ts: new Date().toISOString(), ref: document.referrer||"" };
+  if(!TRACK_URL){ console.log("[SPC track]", type, payload.deal||"-", "view#"+payload.views, "(no TRACK_URL set)"); return; }
+  try{ fetch(TRACK_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),keepalive:true}).catch(function(){}); }catch(e){}
+}
+
 var SB = "https://gqhfgqiahynbedbzurzq.supabase.co/storage/v1/render/image/public/photos/listings/";
 
 /* ============================================================
@@ -561,6 +583,7 @@ function openModal(id){
   var d = DEALS.find(function(x){return x.id===id;});
   if(!d) return;
   modalDeal = d;
+  bumpView(id); trackEvent("view", d);
   document.getElementById("modalInner").innerHTML = modalHTML(d);
   document.getElementById("ov").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -711,11 +734,12 @@ document.getElementById("gform").addEventListener("submit", function(ev){
   if(!ok) return;
 
   var lead={ name:name, email:email, phone:phone, buyer_type:document.getElementById("gType").value,
-             deal:(pendingAction&&pendingAction.id)||"", source:"homes.spchomestx.net", ts:new Date().toISOString() };
+             deal:(pendingAction&&pendingAction.id)||"", views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
   sendLead(lead);
 
   unlocked=true;
   try{ localStorage.setItem("spc_unlocked","1"); localStorage.setItem("spc_lead",JSON.stringify(lead)); }catch(e){}
+  trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null);
   document.getElementById("welcomeLine").textContent="Welcome, "+name.split(" ")[0]+" · full access unlocked";
   closeGate();
   render();
