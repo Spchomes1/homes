@@ -409,7 +409,8 @@ var DEALS = [
     street:"2013 Avalon Ln", city:"Arlington", state:"TX", zip:"76014", county:"Tarrant",
     beds:4, baths:2, sqft:2074, year:1972, lot:"",
     price:220000, arv:325000, arvText:"$320–330K", spread:105000,
-    lat:32.6905, lng:-97.0805, listingId:null, photos:[], photoExt:"jpg",
+    lat:32.6905, lng:-97.0805, listingId:null, photoExt:"jpg",
+    photos:["https://files.catbox.moe/s4csj7.jpg","https://files.catbox.moe/o37fyq.jpg","https://files.catbox.moe/ngl2bp.jpg","https://files.catbox.moe/zqb8jw.jpg","https://files.catbox.moe/1p24vl.jpg","https://files.catbox.moe/w2z7xz.jpg","https://files.catbox.moe/uem2py.jpg","https://files.catbox.moe/38uj3l.jpg","https://files.catbox.moe/rmca1y.jpg","https://files.catbox.moe/d33yat.jpg"],
     desc:"Off-market cash opportunity in <strong>southeast Arlington</strong>, mid-cities DFW. This 2,074 sqft, 4-bed single-family sits minutes from I-20, Hwy 360 and the entertainment district, in an established Arlington ISD pocket with steady rental demand. Solid systems — <strong>mostly cosmetic work</strong> — make it a clean light-rehab flip or turnkey buy-and-hold, with a $100K+ spread to ARV.",
     cond:{Roof:["Good","ok"],HVAC:["Good","ok"],Foundation:["Good","ok"],Interior:["Cosmetic",""]},
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Close 7/8/26 &nbsp;|&nbsp; National Title &nbsp;|&nbsp; $3,000 non-refundable earnest money"
@@ -489,6 +490,8 @@ function visibleDeals(){
    RENDER CARDS
    ============================================================ */
 function photoUrl(d, i, w, h){
+  var p = d.photos[i];
+  if(/^https?:\/\//.test(p)) return p;   // full URL (e.g. catbox/Drive) — use as-is
   return SB + d.listingId + "/" + d.photos[i] + "." + d.photoExt + "?width="+(w||1200)+"&height="+(h||900)+"&resize=cover";
 }
 
