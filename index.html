@@ -272,9 +272,9 @@ a{color:var(--blue);text-decoration:none}
       <div class="sel">
         <label>Your Market</label>
         <select id="marketSel" onchange="render()">
-          <option value="all">All Texas</option>
           <option value="DFW" selected>DFW (Dallas–Fort Worth)</option>
           <option value="Houston">Houston</option>
+          <option value="all">All Texas</option>
         </select>
       </div>
       <div class="sel">
@@ -828,8 +828,11 @@ if(unlocked){
 flushLeadQueue();
 (function(){
   var did = new URLSearchParams(location.search).get("deal") || (location.hash||"").replace(/^#/,"");
-  var has = did && DEALS.some(function(d){ return d.id===did; });
-  if(has){ document.getElementById("marketSel").value = "all"; }
+  var dealObj = did ? DEALS.find(function(d){ return d.id===did; }) : null;
+  var has = !!dealObj;
+  // Opening a shared deal link shows that deal's own market (DFW stays DFW,
+  // a Houston link shows Houston) — never the combined All-Texas view.
+  if(has){ document.getElementById("marketSel").value = dealObj.market; }
   render();
   if(has){ openModal(did); }
 })();
