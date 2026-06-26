@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPC Homes — Off-Market Investment Deals | DFW &amp; Houston</title>
+<meta name="description" content="Browse SPC Homes off-market wholesale deals across DFW and Houston. Fix-and-flip and rental opportunities. Unlock full address, photos and document packets free.">
+
+<!-- ============================================================
+     SPC HOMES — DEAL MARKETPLACE  (single self-contained page)
+     Host: homes.spchomestx.net
+     Data: spc-cloud inventory (snapshot embedded in DEALS below)
+     Gate: teaser visible; full address + docs + offer unlock
+           after capturing email + phone (POST to GHL webhook).
+     To deploy in GoHighLevel: upload this one .html via
+     WordPress hosting "Custom HTML Pages", OR paste <style>..</script>
+     into one Custom Code element on a blank full-width funnel page.
+     ----------------------------------------------------------------
+     EDIT POINTS:
+       • GHL_LEAD_WEBHOOK  -> paste your GHL inbound-webhook URL (capture)
+       • DEALS[]           -> add / edit / remove properties
+     ============================================================ -->
+
+<link rel="preconnect" href="https://gqhfgqiahynbedbzurzq.supabase.co">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{
+  --navy:#15166b; --blue:#2a5db0; --blue-dark:#234e96; --dark:#0f1130;
+  --panel:#f6f8fc; --panel-bd:#e3e8f1; --bg:#eef1f6; --ink:#2b2f3a;
+  --muted:#7a8499; --good:#1f9d55; --warn:#b45309; --pin:#d8262f;
+  --white:#fff; --shadow:0 1px 3px rgba(16,24,64,.06),0 10px 28px rgba(16,24,64,.10);
+  --radius:14px; --font:'Helvetica Neue',Arial,Helvetica,sans-serif;
+  --hdr:60px; --sub:74px; --banner:0px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+img{display:block;max-width:100%;border:0}
+button{font-family:inherit}
+a{color:var(--blue);text-decoration:none}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.card:focus-visible{outline:3px solid var(--blue);outline-offset:-2px}
+.mgal figure:focus-visible,.more:focus-visible,.lockfig:focus-visible{outline:3px solid #fff;outline-offset:-3px}
+
+/* ---------- PROMO BANNER ---------- */
+.promo{background:linear-gradient(90deg,var(--navy),var(--blue));color:#eaf0fb;font-size:14px;text-align:center;padding:10px 44px 10px 16px;position:relative}
+.promo b{color:#fff}
+.promo .x{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#cdd7ee;font-size:20px;line-height:1;background:none;border:0}
+
+/* ---------- HEADER ---------- */
+.hdr{position:sticky;top:0;z-index:40;background:var(--dark);color:#fff;border-bottom:1px solid #000}
+.hdr .in{max-width:1500px;margin:0 auto;height:var(--hdr);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.hdr .logo{display:flex;align-items:center;gap:10px}
+.hdr .logo img{height:34px;width:auto;background:#fff;border-radius:6px;padding:3px 6px}
+.hdr .logo span{font-weight:800;letter-spacing:.5px;font-size:18px;color:#e8c889}
+.hdr nav{display:flex;align-items:center;gap:26px}
+.hdr nav a{color:#e7eaf2;font-weight:600;font-size:15px}
+.hdr nav a:hover{color:#fff}
+.hdr .call{display:inline-flex;align-items:center;gap:7px;background:var(--blue);color:#fff;font-weight:700;font-size:14px;padding:9px 16px;border-radius:8px}
+.hdr .call:hover{background:var(--blue-dark)}
+
+/* ---------- SUBBAR ---------- */
+.subbar{position:sticky;top:var(--hdr);z-index:35;background:#fff;border-bottom:1px solid var(--panel-bd)}
+.subbar .in{max-width:1500px;margin:0 auto;height:var(--sub);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.who{display:flex;align-items:center;gap:12px;min-width:0}
+.who .av{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none}
+.who .nm{font-weight:800;color:var(--navy);font-size:17px;line-height:1.15}
+.who .sb{font-size:13px;color:var(--muted)}
+.selectors{display:flex;gap:14px}
+.sel{min-width:170px;border:1px solid var(--panel-bd);border-radius:10px;padding:7px 12px 8px;background:var(--panel)}
+.sel label{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--blue);margin-bottom:1px}
+.sel select{width:100%;border:0;background:none;font-family:inherit;font-size:16px;font-weight:700;color:var(--navy);outline:none;cursor:pointer}
+
+/* ---------- SPLIT LAYOUT ---------- */
+.split{display:grid;grid-template-columns:minmax(380px,46%) 1fr;height:calc(100vh - var(--hdr) - var(--sub) - var(--banner));min-height:520px}
+#map{height:100%;width:100%;background:#dfe5ee}
+.results{height:100%;overflow-y:auto;padding:18px 20px 60px;background:var(--bg)}
+.results .rhead{display:flex;align-items:baseline;justify-content:space-between;margin:2px 4px 14px}
+.results .rhead h1{font-size:18px;color:var(--navy);margin:0;font-weight:800}
+.results .rhead .ct{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+
+/* ---------- CARD ---------- */
+.card{background:#fff;border:1px solid var(--panel-bd);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(16,24,64,.10),0 18px 40px rgba(16,24,64,.16)}
+.card.hl{outline:3px solid var(--blue);outline-offset:-1px}
+.cphoto{position:relative;aspect-ratio:3/2;background:#1d2030;overflow:hidden}
+.cphoto img{width:100%;height:100%;object-fit:cover;transition:opacity .25s}
+.cphoto .ph-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#cdd7ee;text-align:center;padding:10px}
+.cphoto .ph-ph img{width:54px;height:auto;background:#fff;border-radius:8px;padding:5px 7px}
+.cphoto .ph-ph span{font-size:12px;font-weight:700;letter-spacing:.4px}
+.badge{position:absolute;top:10px;left:10px;background:var(--good);color:#fff;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.badge.land{background:var(--warn)}
+.tag{position:absolute;top:10px;right:10px;background:rgba(15,17,48,.82);color:#fff;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px}
+.arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;opacity:0;transition:opacity .15s}
+.cphoto:hover .arrows{opacity:1}
+.arrows button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#1d2030;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);line-height:1}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:4px;justify-content:center}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
+.dots i.on{background:#fff}
+.cbody{padding:13px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
+.cprice{font-size:23px;font-weight:800;color:var(--navy);line-height:1}
+.cprice .arv{font-size:13px;font-weight:700;color:var(--muted);margin-left:7px}
+.caddr{font-size:14px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px}
+.caddr .lock{font-size:12px;color:var(--blue);font-weight:700}
+.cstats{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chip{background:var(--panel);border:1px solid var(--panel-bd);border-radius:20px;padding:5px 11px;font-size:12.5px;font-weight:700;color:var(--navy)}
+
+/* ---------- MODAL ---------- */
+.ov{position:fixed;inset:0;z-index:90;background:rgba(8,9,24,.55);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px}
+.ov.open{display:flex}
+.modal{background:#fff;width:100%;max-width:980px;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden;position:relative}
+.modal .close{position:absolute;top:14px;right:16px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.95);font-size:22px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);line-height:1}
+.mgal{display:grid;gap:6px;background:#1d2030;max-height:430px}
+.mgal.mosaic{grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr}
+.mgal.two{grid-template-columns:1fr 1fr;max-height:400px}
+.mgal.one{grid-template-columns:1fr;max-height:420px}
+.mgal .big{grid-row:span 2;grid-column:1}
+.mgal figure.locked img{filter:blur(16px) brightness(.85);transform:scale(1.08)}
+.mgal figure{margin:0;position:relative;overflow:hidden;cursor:pointer}
+.mgal img{width:100%;height:100%;object-fit:cover;min-height:120px}
+.mgal .big img{min-height:240px}
+.mgal .more{position:absolute;inset:0;background:rgba(15,17,48,.66);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;text-align:center;backdrop-filter:blur(2px)}
+.mgal .lockfig{position:absolute;inset:0;background:rgba(15,17,48,.5);display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;padding:12px;text-align:center;cursor:pointer}
+.mgal .lockmsg{color:#fff;font-size:12px;font-weight:700;line-height:1.3;max-width:170px}
+.mgal .lockfig svg{width:26px;height:26px;opacity:.92}
+.mgal .ph-ph{grid-column:1 / -1;grid-row:1 / -1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#cdd7ee;min-height:300px}
+.mgal .ph-ph img{width:90px;background:#fff;border-radius:10px;padding:7px 10px;min-height:0;height:auto}
+.mbody{padding:24px clamp(18px,3vw,32px) 30px;display:grid;grid-template-columns:1fr 320px;gap:30px}
+.mmain{min-width:0}
+.statusrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pill{background:var(--good);color:#fff;font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:6px 14px;border-radius:20px}
+.pill.land{background:var(--warn)}
+.bigprice{font-size:38px;font-weight:800;color:var(--navy);line-height:1}
+.maddr{font-size:16px;font-weight:700;color:var(--ink);margin:6px 0 2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn-unlock{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;border:0;font-weight:700;font-size:13px;padding:6px 12px;border-radius:7px;cursor:pointer}
+.btn-unlock:hover{background:var(--blue-dark)}
+.msub{color:var(--muted);font-size:14px;font-weight:600;margin:0 0 16px}
+.mstats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.h3{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--navy);margin:22px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--blue);display:inline-block}
+.desc{font-size:15.5px;line-height:1.7;color:#3f4450}
+.numgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.numbox{background:var(--panel);border:1px solid var(--panel-bd);border-radius:11px;padding:14px 12px;text-align:center}
+.numbox .nl{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:5px}
+.numbox .nv{font-size:20px;font-weight:800;color:var(--navy)}
+.numbox.accent{background:var(--navy);border-color:var(--navy)}
+.numbox.accent .nl{color:#9fb6e8}.numbox.accent .nv{color:#fff}
+.dl{width:100%;border-collapse:collapse;font-size:14.5px}
+.dl td{padding:8px 0;border-bottom:1px solid #eef1f6}
+.dl td:first-child{color:var(--muted)}
+.dl td:last-child{text-align:right;font-weight:700;color:var(--navy)}
+.ok{color:var(--good)!important}.bad{color:var(--warn)!important}
+.docs{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px dashed var(--panel-bd);border-radius:11px;padding:16px 18px}
+.docs .ic{width:40px;height:40px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.docs .t{flex:1}.docs .t b{color:var(--navy);font-size:15px}.docs .t p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+
+/* ---------- ASIDE (sticky deal card) ---------- */
+.maside{align-self:start;position:sticky;top:14px}
+.dealcard{border:1px solid var(--panel-bd);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.dealcard .top{padding:18px 18px 16px}
+.dealcard .row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:15px}
+.dealcard .row+.row{border-top:1px solid #eef1f6}
+.dealcard .row .k{color:var(--muted)}
+.dealcard .row .v{font-weight:800;color:var(--navy)}
+.dealcard .row .v.big{font-size:22px}
+.dealcard .cta{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px}
+.b1,.b2,.b3{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;font-weight:800;font-size:15px;padding:13px;cursor:pointer;border:0}
+.b1{background:var(--blue);color:#fff}.b1:hover{background:var(--blue-dark)}
+.b2{background:var(--navy);color:#fff}.b2:hover{background:#0e0f4d}
+.b3{background:#fff;color:var(--navy);border:1px solid var(--panel-bd)}.b3:hover{background:var(--panel)}
+.agent{margin-top:16px;border:1px solid var(--panel-bd);border-radius:14px;padding:16px 18px;background:var(--panel)}
+.agent .nm{font-weight:800;color:var(--navy);font-size:16px}
+.agent .co{font-size:13px;color:var(--muted);margin:1px 0 12px}
+.agent a{display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:1px solid var(--panel-bd);border-radius:9px;padding:11px;font-weight:700;color:var(--navy)}
+
+/* ---------- GATE ---------- */
+.gate{position:fixed;inset:0;z-index:120;background:rgba(8,9,24,.66);display:none;align-items:center;justify-content:center;padding:20px}
+.gate.open{display:flex}
+.gatebox{width:100%;max-width:440px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.gatebox .gh{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:24px 26px 20px;position:relative}
+.gatebox .gh h3{margin:0 0 6px;font-size:21px}
+.gatebox .gh p{margin:0;color:#cdd7ee;font-size:14px}
+.gatebox .gh .gx{position:absolute;top:14px;right:16px;background:none;border:0;color:#cdd7ee;font-size:22px;cursor:pointer;line-height:1}
+.gform{padding:22px 26px 26px;display:grid;gap:13px}
+.gform label{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block}
+.gform .req{color:var(--pin)}
+.gform .fine a{color:#cfe0fa;text-decoration:underline}
+.gform input,.gform select{width:100%;padding:13px 14px;border:1px solid var(--panel-bd);border-radius:10px;font-family:inherit;font-size:15px;color:var(--ink);background:#fff}
+.gform input:focus,.gform select:focus{outline:none;border-color:var(--blue)}
+.gform .err{color:var(--pin);font-size:12.5px;font-weight:700;display:none}
+.gform .sub{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;margin-top:4px}
+.gform .sub:hover{background:var(--blue-dark)}
+.gform .fine{font-size:11.5px;color:var(--muted);text-align:center;margin:2px 0 0;line-height:1.5}
+
+/* ---------- LIGHTBOX ---------- */
+.lb{position:fixed;inset:0;z-index:140;background:rgba(8,9,24,.94);display:none;align-items:center;justify-content:center}
+.lb.open{display:flex}
+.lb img{max-width:92vw;max-height:86vh;border-radius:8px;object-fit:contain}
+.lb .x{position:absolute;top:18px;right:24px;color:#fff;font-size:40px;cursor:pointer;background:none;border:0;line-height:1}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:50px;cursor:pointer;padding:0 22px;background:none;border:0;opacity:.85}
+.lb .prev{left:0}.lb .next{right:0}
+
+/* ---------- FOOTER ---------- */
+.ft{background:var(--navy);color:#b8c3e6}
+.ft .in{max-width:1500px;margin:0 auto;padding:28px 22px 34px}
+.ft .disc{font-size:12px;line-height:1.7;margin:0 0 14px}
+.ft .disc strong{color:#fff}
+.ft .org{font-size:13px;color:#fff}.ft .org a{color:#9fc0f5;text-decoration:underline}
+
+/* custom map pin */
+.pinlab{display:inline-block;position:relative;background:var(--pin);color:#fff;font-weight:800;font-size:12.5px;padding:5px 9px;border-radius:7px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.35);border:1.5px solid #fff;transform:translate(-50%,-115%);cursor:pointer}
+.pinlab.sel{background:var(--navy)}
+.leaflet-marker-icon .pinlab::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pin)}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:900px){
+  .split{grid-template-columns:1fr;height:auto}
+  #map{height:300px;position:sticky;top:calc(var(--hdr) + var(--sub));z-index:30}
+  .results{height:auto;overflow:visible}
+  .mbody{grid-template-columns:1fr}
+  .maside{position:static}
+  .hdr nav a:not(.call){display:none}
+  .selectors{flex:1}
+  .sel{min-width:0;flex:1}
+}
+@media(max-width:560px){
+  #map{position:static}
+  .subbar .in{flex-direction:column;height:auto;padding:12px 16px;gap:12px;align-items:stretch}
+  .selectors{width:100%}
+  .who{justify-content:flex-start}
+  .mgal.mosaic{grid-template-columns:1fr 1fr;max-height:none}
+  .mgal .big{grid-column:span 2;grid-row:auto}
+  .hdr .logo span{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- PROMO -->
+<div class="promo" id="promo">
+  🏠 <b>New off-market deals added weekly.</b> Unlock full address, photos &amp; document packets — free.
+  <button class="x" aria-label="Dismiss banner" onclick="document.getElementById('promo').style.display='none'">&times;</button>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="in">
+    <a class="logo" href="#">
+      <img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC Homes">
+      <span>SPC HOMES</span>
+    </a>
+    <nav>
+      <a href="#">Browse Deals</a>
+      <a href="#" onclick="openGate('general');return false;">How It Works</a>
+      <a class="call" href="tel:+18176972534">&#9742;&nbsp; 817-697-2534</a>
+    </nav>
+  </div>
+</header>
+
+<!-- SUBBAR -->
+<div class="subbar">
+  <div class="in">
+    <div class="who">
+      <div class="av">SPC</div>
+      <div>
+        <div class="nm">SPC Homes — Investor Deals</div>
+        <div class="sb" id="welcomeLine">Off-market wholesale · DFW &amp; Houston</div>
+      </div>
+    </div>
+    <div class="selectors">
+      <div class="sel">
+        <label>Your Market</label>
+        <select id="marketSel" onchange="render()">
+          <option value="all">All Texas</option>
+          <option value="DFW" selected>DFW (Dallas–Fort Worth)</option>
+          <option value="Houston">Houston</option>
+        </select>
+      </div>
+      <div class="sel">
+        <label>Sort Options</label>
+        <select id="sortSel" onchange="render()">
+          <option value="plh" selected>Price (low to high)</option>
+          <option value="phl">Price (high to low)</option>
+          <option value="spread">Biggest spread</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPLIT -->
+<div class="split">
+  <div id="map"></div>
+  <div class="results">
+    <div class="rhead">
+      <h1 id="rTitle">Available Deals</h1>
+      <div class="ct" id="rCount"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="ft">
+  <div class="in">
+    <p class="disc">
+      <strong>IMPORTANT:</strong> Listings represent an <strong>assignment of a purchase contract</strong>, not a direct property sale.
+      The advertised price includes the original contract price plus an assignment fee. Buyer is responsible for their own due diligence.
+      Offered to qualified real estate investors only; no real estate agent relationship is implied. All information believed accurate but not guaranteed.
+      A property is not under contract until a signed contract and deposit are received with all contingencies removed.
+    </p>
+    <p class="org"><strong>SPC Homes LLC</strong> &nbsp;|&nbsp; 4742 Benbrook Blvd, Fort Worth, TX 76116 &nbsp;|&nbsp; <a href="tel:+18176972534">817-697-2534</a></p>
+  </div>
+</footer>
+
+<!-- DETAIL MODAL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Property details"><button class="close" aria-label="Close" onclick="closeModal()">&times;</button><div id="modalInner"></div></div>
+</div>
+
+<!-- GATE -->
+<div class="gate" id="gate" onclick="if(event.target===this)closeGate()">
+  <div class="gatebox">
+    <div class="gh">
+      <button class="gx" aria-label="Close" onclick="closeGate()">&times;</button>
+      <h3 id="gateTitle">Unlock this deal</h3>
+      <p id="gateSub">Enter your info to reveal the full address, all photos &amp; the document packet — free.</p>
+    </div>
+    <form class="gform" id="gform" novalidate>
+      <div>
+        <label for="gName">Full Name <span class="req">*</span></label>
+        <input id="gName" name="name" placeholder="First &amp; last name" autocomplete="name" aria-required="true" aria-describedby="err-gName">
+        <div class="err" id="err-gName" data-for="gName" role="alert">Please enter your name.</div>
+      </div>
+      <div>
+        <label for="gEmail">Email <span class="req">*</span></label>
+        <input id="gEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" aria-required="true" aria-describedby="err-gEmail">
+        <div class="err" id="err-gEmail" data-for="gEmail" role="alert">Enter a valid email.</div>
+      </div>
+      <div>
+        <label for="gPhone">Mobile Phone <span class="req">*</span></label>
+        <input id="gPhone" name="phone" type="tel" placeholder="e.g. (817) 555-0123" autocomplete="tel" aria-required="true" aria-describedby="err-gPhone">
+        <div class="err" id="err-gPhone" data-for="gPhone" role="alert">Enter a valid 10-digit phone.</div>
+      </div>
+      <div>
+        <label for="gType">Buyer Type</label>
+        <select id="gType" name="buyer_type">
+          <option>Cash Buyer</option><option>Hard Money</option>
+          <option>Wholesaler</option><option>Agent (representing buyer)</option><option>New Investor</option>
+        </select>
+      </div>
+      <button class="sub" type="submit">Unlock Deal Access</button>
+      <p class="fine">By submitting, you agree to receive <strong>calls &amp; texts</strong> from SPC Homes about this and similar off-market deals at the number provided (including automated messages); consent is not a condition of purchase, and message &amp; data rates may apply. Reply STOP to opt out. We never sell your info. <a href="https://www.spchomestx.com" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+    </form>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <button class="x" aria-label="Close photo viewer" onclick="LB.close()">&times;</button>
+  <button class="nav prev" aria-label="Previous photo" onclick="LB.step(-1)">&#8249;</button>
+  <img id="lbimg" src="" alt="Property photo">
+  <button class="nav next" aria-label="Next photo" onclick="LB.step(1)">&#8250;</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+// Paste your GHL inbound-webhook URL here to capture leads into GHL.
+// (Workflow -> trigger "Inbound Webhook" -> create/update contact, add tag, notify.)
+// Until set, the gate still unlocks so the page is fully usable.
+var GHL_LEAD_WEBHOOK = "";
+
+var SB = "https://gqhfgqiahynbedbzurzq.supabase.co/storage/v1/render/image/public/photos/listings/";
+
+/* ============================================================
+   DEALS  (snapshot of spc-cloud inventory)
+   ============================================================ */
+var DEALS = [
+  {
+    id:"avalon", name:"2013 Avalon Ln", status:"active", type:"house", market:"DFW",
+    street:"2013 Avalon Ln", city:"Arlington", state:"TX", zip:"76014", county:"Tarrant",
+    beds:4, baths:2, sqft:2074, year:1972, lot:"",
+    price:220000, arv:325000, arvText:"$320–330K", spread:105000,
+    lat:32.6905, lng:-97.0805, listingId:null, photos:[], photoExt:"jpg",
+    desc:"Off-market cash opportunity in <strong>southeast Arlington</strong>, mid-cities DFW. This 2,074 sqft, 4-bed single-family sits minutes from I-20, Hwy 360 and the entertainment district, in an established Arlington ISD pocket with steady rental demand. Solid systems — <strong>mostly cosmetic work</strong> — make it a clean light-rehab flip or turnkey buy-and-hold, with a $100K+ spread to ARV.",
+    cond:{Roof:["Good","ok"],HVAC:["Good","ok"],Foundation:["Good","ok"],Interior:["Cosmetic",""]},
+    terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Close 7/8/26 &nbsp;|&nbsp; National Title &nbsp;|&nbsp; $3,000 non-refundable earnest money"
+  },
+  {
+    id:"chapin", name:"8012 Chapin Rd", status:"active", type:"house", market:"DFW",
+    street:"8012 Chapin Rd", city:"Benbrook", state:"TX", zip:"76116", county:"Tarrant",
+    beds:3, baths:2, sqft:2025, year:null, lot:"",
+    price:215000, arv:350000, arvText:"$340–350K", spread:135000,
+    lat:32.6940, lng:-97.4530, listingId:"bff6854b-c07d-482c-972e-f64bc183ebcd", photoExt:"jpg",
+    photos:["a382df2e-24c6-4210-8ddc-83d7b84e67fa","6696bd0c-2d20-40fc-b5dc-e812e7e13aeb","089888a6-9b45-477f-a181-2ec84a368237","e9e83565-dcf3-440d-b66c-b87719897870","c7b6b273-84a0-4ed9-9560-b008f825c4b8","899f8894-429d-4c30-b3be-e3c5dd45848a","33a31aa1-685b-4941-93fa-ebe041e1552d","95a62013-5deb-413c-b16b-cca352bd5ec8"],
+    desc:"Off-market cash opportunity in one of <strong>Fort Worth's most established inner-ring submarkets</strong>. Single-story brick ranch with genuine square footage and solid bones in Benbrook, just off Loop 820 / I-30 — a full-rehab <strong>fix-and-flip or long-term rental</strong> in a tight, high-demand area.",
+    cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["Needs work","bad"],Interior:["Full cosmetic","bad"]},
+    terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Vacant (combo access) &nbsp;|&nbsp; 1836 Title &nbsp;|&nbsp; $3,000 earnest"
+  },
+  {
+    id:"shelley", name:"3834 Shelley Blvd", status:"active", type:"house", market:"DFW",
+    street:"3834 Shelley Blvd", city:"Dallas", state:"TX", zip:"75211", county:"Dallas",
+    beds:3, baths:1, sqft:1096, year:null, lot:"",
+    price:155000, arv:300000, arvText:"$295–300K", spread:145000,
+    lat:32.7360, lng:-96.8755, listingId:"a908be2c-3037-4d02-94a4-e6f99a3821d3", photoExt:"jpg",
+    photos:["8ccb9b5c-8259-486a-9b6b-55a6a1f5fa29","e3a60535-59d2-4005-9d3a-571f19ee81f5","da87a9a9-0d04-4ffa-960a-9c47d2149e14","1c922614-b848-44b6-b4aa-d21a1a2eb9b4","7b1abb4c-c8d1-4a28-a873-323cac63e29b","5faf7382-eb0d-4d81-8c74-d8b359146418","e7d6c600-3871-410c-ae16-efa34a1381fe","ad9a6bf9-67e9-419e-8003-c64144a79f04"],
+    desc:"Off-market <strong>fix-and-flip in Oak Cliff / southwest Dallas</strong> (75211). A classic 3/1 with a strong ARV spread in a steadily appreciating, rental-heavy pocket close to downtown. Bring your contractor and walk it before you offer.",
+    cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["TBD",""],Interior:["Full cosmetic","bad"]},
+    terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; $3,000 earnest"
+  },
+  {
+    id:"marietta", name:"4838 Marietta Ln", status:"active", type:"house", market:"Houston",
+    street:"4838 Marietta Ln", city:"Houston", state:"TX", zip:"77021", county:"Harris",
+    beds:2, baths:1, sqft:1235, year:1950, lot:"0.158 ac",
+    price:130000, arv:250000, arvText:"$250K", spread:120000,
+    lat:29.7000, lng:-95.3500, listingId:"38fe41f4-b2a1-4d47-8ff4-ce271c5ce0b3", photoExt:"jpg",
+    photos:["4e0ba371-c778-4dec-aa95-cfaebc39d6b2","43e53ab8-4a80-4717-8ec1-6891e08a7f4c"],
+    desc:"Off-market <strong>gut rehab inside the 610 Loop</strong> — OST / South Union, near Riverside Terrace and the Med Center. A 2/1 on a 0.158-acre lot in a fast-changing Houston pocket; full rehab with a strong path to a $250K ARV.",
+    cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["TBD",""],Interior:["Gut rehab","bad"]},
+    terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; $3,000 earnest"
+  },
+  {
+    id:"jamaica", name:"4703 Jamaica St", status:"active", type:"land", market:"DFW",
+    street:"4703 Jamaica St", city:"Dallas", state:"TX", zip:"75210", county:"Dallas",
+    beds:null, baths:null, sqft:null, year:null, lot:"0.15 ac",
+    price:70000, arv:null, arvText:"AVM $192–307K", spread:null,
+    lat:32.7720, lng:-96.7450, listingId:"e9d2ff83-bfec-48ab-bd05-18d027b3e00d", photoExt:"png",
+    photos:["db88dfa4-d444-49dc-b196-cd9abd601193","cf1d75a4-51ad-49ab-8c24-7d6c5d1c38a7"],
+    desc:"Off-market <strong>0.15-acre build lot near Fair Park</strong>, East Dallas (75210). Infill opportunity in an area with active new construction; comparable AVMs land between $192K–$307K. Ideal for a build or land-bank play.",
+    cond:null,
+    terms:"Cash &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Vacant lot &nbsp;|&nbsp; $2,000 earnest"
+  }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var unlocked = false;
+try { unlocked = localStorage.getItem("spc_unlocked") === "1"; } catch(e){}
+var pendingAction = null;   // {type, deal}
+var map, markers = {}, cardCarousel = {};
+
+function money(n){ return "$" + Number(n).toLocaleString("en-US"); }
+function moneyK(n){ return "$" + Math.round(n/1000) + "K"; }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+function visibleDeals(){
+  var mk = document.getElementById("marketSel").value;
+  var list = DEALS.filter(function(d){ return mk==="all" || d.market===mk; });
+  var s = document.getElementById("sortSel").value;
+  list.sort(function(a,b){
+    if(s==="plh") return a.price-b.price;
+    if(s==="phl") return b.price-a.price;
+    if(s==="spread") return (b.spread||0)-(a.spread||0);
+    return 0;
+  });
+  return list;
+}
+
+/* ============================================================
+   RENDER CARDS
+   ============================================================ */
+function photoUrl(d, i, w, h){
+  return SB + d.listingId + "/" + d.photos[i] + "." + d.photoExt + "?width="+(w||1200)+"&height="+(h||900)+"&resize=cover";
+}
+
+function cardHTML(d){
+  var hasPhotos = d.photos && d.photos.length>0;
+  var photoArea;
+  if(hasPhotos){
+    photoArea =
+      '<img id="cimg-'+d.id+'" src="'+photoUrl(d,0,600,400)+'" alt="'+esc(d.name)+'" loading="lazy">' +
+      (d.photos.length>1 ?
+        '<div class="arrows"><button type="button" aria-label="Previous photo" onclick="cstep(event,\''+d.id+'\',-1)">&#8249;</button><button type="button" aria-label="Next photo" onclick="cstep(event,\''+d.id+'\',1)">&#8250;</button></div>'+
+        '<div class="dots" id="cdots-'+d.id+'">'+d.photos.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>'
+        : '');
+  } else {
+    photoArea = '<div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC"><span>Photos available on request</span></div>';
+  }
+  var addr = unlocked
+    ? esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)
+    : esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' <span class="lock">🔒 address</span>';
+  var stats = d.type==="land"
+    ? '<span class="chip">Land</span><span class="chip">'+esc(d.lot)+'</span>'
+    : '<span class="chip">'+d.beds+' Bed</span><span class="chip">'+d.baths+' Bath</span>'+(d.sqft?'<span class="chip">'+d.sqft.toLocaleString()+' sqft</span>':'');
+  var arv = d.arv ? '<span class="arv">ARV '+moneyK(d.arv)+'</span>' : '<span class="arv">'+esc(d.arvText)+'</span>';
+  return '<div class="card" id="card-'+d.id+'" role="button" tabindex="0" aria-label="View deal: '+money(d.price)+', '+esc(d.city)+' '+esc(d.zip)+'" onclick="openModal(\''+d.id+'\')" '+
+         'onmouseenter="hiPin(\''+d.id+'\',1)" onmouseleave="hiPin(\''+d.id+'\',0)">'+
+    '<div class="cphoto">'+photoArea+
+      '<span class="badge'+(d.type==="land"?' land':'')+'">'+(d.type==="land"?"Lot":"Available")+'</span>'+
+      '<span class="tag">'+esc(d.county)+' Co.</span>'+
+    '</div>'+
+    '<div class="cbody">'+
+      '<div class="cprice">'+money(d.price)+arv+'</div>'+
+      '<div class="caddr">📍 '+addr+'</div>'+
+      '<div class="cstats">'+stats+'</div>'+
+    '</div></div>';
+}
+
+function render(){
+  var list = visibleDeals();
+  document.getElementById("grid").innerHTML = list.map(cardHTML).join("");
+  document.getElementById("rCount").textContent = list.length + " deal" + (list.length!==1?"s":"");
+  var mk = document.getElementById("marketSel").value;
+  document.getElementById("rTitle").textContent = (mk==="all"?"All Texas":mk) + " Deals";
+  list.forEach(function(d){ cardCarousel[d.id] = 0; });
+  drawMap(list);
+}
+
+function cstep(ev, id, dir){
+  ev.stopPropagation();
+  var d = DEALS.find(function(x){return x.id===id;});
+  if(!d.photos || d.photos.length<2) return;
+  var i = (cardCarousel[id] + dir + d.photos.length) % d.photos.length;
+  cardCarousel[id] = i;
+  document.getElementById("cimg-"+id).src = photoUrl(d, i, 600, 400);
+  var dots = document.querySelectorAll("#cdots-"+id+" i");
+  dots.forEach(function(el,k){ el.className = k===i?"on":""; });
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+function drawMap(list){
+  if(!map){
+    map = L.map("map",{scrollWheelZoom:true}).setView([32.78,-96.8], 9);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
+      attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19
+    }).addTo(map);
+  }
+  Object.keys(markers).forEach(function(k){ map.removeLayer(markers[k]); });
+  markers = {};
+  var pts = [];
+  list.forEach(function(d){
+    var icon = L.divIcon({className:"", html:'<div class="pinlab" id="pin-'+d.id+'">'+moneyK(d.price)+'</div>', iconSize:[1,1]});
+    var m = L.marker([d.lat,d.lng],{icon:icon}).addTo(map);
+    m.on("click", function(){ openModal(d.id); });
+    markers[d.id] = m;
+    pts.push([d.lat,d.lng]);
+  });
+  if(pts.length===1){ map.setView(pts[0], 12); }
+  else if(pts.length>1){ map.fitBounds(pts, {padding:[55,55], maxZoom:12}); }
+}
+function hiPin(id, on){
+  var el = document.getElementById("pin-"+id);
+  if(el) el.classList.toggle("sel", !!on);
+  var c = document.getElementById("card-"+id);
+  if(c) c.classList.toggle("hl", !!on);
+}
+
+/* ============================================================
+   DETAIL MODAL
+   ============================================================ */
+var modalDeal = null;
+function openModal(id){
+  var d = DEALS.find(function(x){return x.id===id;});
+  if(!d) return;
+  modalDeal = d;
+  document.getElementById("modalInner").innerHTML = modalHTML(d);
+  document.getElementById("ov").classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("modal").scrollTop = 0;
+  try{ history.replaceState(null,"",location.pathname+"?deal="+id); }catch(e){}
+  document.title = d.name+" · "+money(d.price)+(d.arv?" / ARV "+moneyK(d.arv):"")+" — SPC Homes";
+}
+function closeModal(){
+  document.getElementById("ov").classList.remove("open");
+  document.body.style.overflow = "";
+  modalDeal = null;
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+  document.title = "SPC Homes — Off-Market Investment Deals | DFW & Houston";
+}
+function copyDealLink(id, btn){
+  var url = location.origin + location.pathname + "?deal=" + id;
+  var done = function(){ var t=btn.textContent; btn.textContent="✓ Link Copied!"; setTimeout(function(){ btn.textContent=t; }, 1800); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done, function(){ prompt("Copy this link:", url); }); }
+  else { prompt("Copy this link:", url); }
+}
+
+function modalHTML(d){
+  var hasPhotos = d.photos && d.photos.length>0;
+  var gal;
+  if(hasPhotos){
+    var tiles = "";
+    var show = Math.min(5, d.photos.length);
+    var galCls = d.photos.length>=3 ? "mosaic" : (d.photos.length===2 ? "two" : "one");
+    for(var i=0;i<show;i++){
+      var cls = (galCls==="mosaic" && i===0) ? "big" : "";
+      var locked = (!unlocked && i>=2);  // first 2 free, rest locked until unlock
+      var overlay = "";
+      if(i===show-1 && d.photos.length>show){
+        overlay = '<div class="more" role="button" tabindex="0" aria-label="View all '+d.photos.length+' photos" onclick="event.stopPropagation();unlockOr(\'photos\',\''+d.id+'\','+show+')">+'+(d.photos.length-show)+' more<br>View all photos</div>';
+      } else if(locked){
+        overlay = '<div class="lockfig" role="button" tabindex="0" aria-label="Unlock to view this photo — free" onclick="event.stopPropagation();openGate(\'photos\')"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm3 8H9V6a3 3 0 0 1 6 0v3z"/></svg><span class="lockmsg">Unlock to see all '+d.photos.length+' photos — free</span></div>';
+      }
+      var fcls = (cls + (locked?" locked":"")).trim();
+      tiles += '<figure'+(fcls?' class="'+fcls+'"':'')+(locked?'':' role="button" tabindex="0"')+' onclick="'+(locked?'openGate(\'photos\')':'LB.open('+i+')')+'">'+
+               '<img src="'+photoUrl(d,i,i===0?1000:500,i===0?750:380)+'" alt="'+esc(d.name)+(i===0?' — exterior':' — photo '+(i+1))+'" loading="lazy">'+overlay+'</figure>';
+    }
+    gal = '<div class="mgal '+galCls+'">'+tiles+'</div>';
+  } else {
+    gal = '<div class="mgal one"><div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC Homes"><span style="font-weight:700">Photos available on request — contact your SPC agent</span></div></div>';
+  }
+
+  var addrLine = unlocked
+    ? '<div class="maddr">📍 '+esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+'</div>'
+    : '<div class="maddr">📍 '+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' · '+esc(d.county)+' County'+
+      ' <button class="btn-unlock" onclick="openGate(\'address\')">🔓 View full address</button></div>';
+
+  var stats = d.type==="land"
+    ? '<span class="chip">Land / Lot</span><span class="chip">'+esc(d.lot)+'</span><span class="chip">'+esc(d.county)+' County</span>'
+    : '<span class="chip">'+d.beds+' Beds</span><span class="chip">'+d.baths+' Baths</span>'+
+      (d.sqft?'<span class="chip">'+d.sqft.toLocaleString()+' Sq Ft</span>':'')+
+      (d.year?'<span class="chip">Built '+d.year+'</span>':'')+
+      (d.lot?'<span class="chip">'+esc(d.lot)+' lot</span>':'');
+
+  var numbers = '<div class="numgrid">'+
+    '<div class="numbox accent"><div class="nl">Cash Price</div><div class="nv">'+moneyK(d.price)+'</div></div>'+
+    '<div class="numbox"><div class="nl">ARV</div><div class="nv">'+(d.arv?d.arvText:esc(d.arvText))+'</div></div>'+
+    (d.spread?'<div class="numbox"><div class="nl">Spread</div><div class="nv">~'+moneyK(d.spread)+'</div></div>'
+             :'<div class="numbox"><div class="nl">Type</div><div class="nv">Build Lot</div></div>')+
+    '</div>';
+
+  var condBlock = "";
+  if(d.cond){
+    var rows = Object.keys(d.cond).map(function(k){
+      var v = d.cond[k];
+      return '<tr><td>'+k+'</td><td class="'+(v[1]||"")+'">'+esc(v[0])+'</td></tr>';
+    }).join("");
+    condBlock = '<h3 class="h3">Property Condition</h3><table class="dl">'+rows+'</table>';
+  }
+
+  var docs = unlocked
+    ? '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details.</p></div><button class="b3" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Request Packet</button></div>'
+    : '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
+
+  var aside =
+    '<div class="maside"><div class="dealcard"><div class="top">'+
+      '<div class="row"><span class="k">Cash Price</span><span class="v big">'+money(d.price)+'</span></div>'+
+      '<div class="row"><span class="k">ARV</span><span class="v">'+(d.arv?money(d.arv):esc(d.arvText))+'</span></div>'+
+      (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':'')+
+    '</div><div class="cta">'+
+      '<button class="b1" onclick="unlockOr(\'offer\',\''+d.id+'\')">Make an Offer</button>'+
+      '<button class="b2" onclick="unlockOr(\'address\',\''+d.id+'\')">'+(unlocked?'View Full Address':'Unlock Full Details')+'</button>'+
+      '<a class="b3" href="tel:+18176972534" style="text-decoration:none">&#9742; Call / Text Agent</a>'+
+      '<button class="b3" onclick="copyDealLink(\''+d.id+'\',this)">&#128279; Copy Share Link</button>'+
+    '</div></div>'+
+    '<div class="agent"><div class="nm">SPC Homes Dispo Team</div><div class="co">Off-Market Acquisitions · DFW &amp; Houston</div>'+
+      '<a href="tel:+18176972534">&#9742; 817-697-2534</a></div>'+
+    '</div>';
+
+  return gal +
+    '<div class="mbody"><div class="mmain">'+
+      '<div class="statusrow"><span class="pill'+(d.type==="land"?" land":"")+'">'+(d.type==="land"?"Build Lot · Available":"Available")+'</span>'+
+        '<span style="color:var(--muted);font-size:13px;font-weight:600">Off-Market · '+esc(d.market)+'</span></div>'+
+      '<div class="bigprice">'+money(d.price)+'</div>'+
+      addrLine +
+      '<p class="msub">'+(d.type==="land"?"Single-Family Build Lot":"Single-Family — Fix &amp; Flip / Rental")+'</p>'+
+      '<div class="mstats">'+stats+'</div>'+
+      numbers +
+      '<h3 class="h3">About This Deal</h3><p class="desc">'+d.desc+'</p>'+
+      condBlock +
+      '<h3 class="h3">Document Packet</h3>'+docs+
+      '<h3 class="h3">Terms</h3><table class="dl"><tr><td colspan="2" style="color:var(--navy);font-weight:600;text-align:left">'+d.terms+'</td></tr></table>'+
+    '</div>'+ aside +'</div>';
+}
+
+/* ============================================================
+   GATE  (email + phone capture)
+   ============================================================ */
+function unlockOr(action, id, payload){
+  if(unlocked){
+    if(action==="photos"){ LB.open(payload||0); }
+    else if(action==="offer"){ window.location.href = "tel:+18176972534"; }
+    return;
+  }
+  openGate(action, id);
+}
+function openGate(action, id){
+  pendingAction = {type:action, id:id||(modalDeal&&modalDeal.id)};
+  var t = document.getElementById("gateTitle"), s = document.getElementById("gateSub");
+  if(action==="offer"){ t.textContent="Make an offer"; s.textContent="Enter your info and an SPC agent will send full details and take your offer."; }
+  else if(action==="docs"){ t.textContent="Get the document packet"; s.textContent="Unlock comps, scope of work, title & access details — free."; }
+  else if(action==="general"){ t.textContent="Get early access to deals"; s.textContent="We send off-market DFW & Houston deals before they go public."; }
+  else { t.textContent="Unlock this deal"; s.textContent="Enter your info to reveal the full address, all photos & the document packet — free."; }
+  document.getElementById("gate").classList.add("open");
+  document.body.style.overflow="hidden";
+  setTimeout(function(){ document.getElementById("gName").focus(); }, 60);
+}
+function closeGate(){
+  document.getElementById("gate").classList.remove("open");
+  if(!document.getElementById("ov").classList.contains("open")) document.body.style.overflow="";
+}
+function showErr(id, on){ var e=document.querySelector('.err[data-for="'+id+'"]'); if(e) e.style.display=on?"block":"none"; }
+
+document.getElementById("gform").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var name=document.getElementById("gName").value.trim();
+  var email=document.getElementById("gEmail").value.trim();
+  var phoneRaw=document.getElementById("gPhone").value.trim();
+  var phone=phoneRaw.replace(/[^0-9]/g,"");
+  var ok=true;
+  if(name.length<2){ showErr("gName",1); ok=false; } else showErr("gName",0);
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr("gEmail",1); ok=false; } else showErr("gEmail",0);
+  if(phone.length<10){ showErr("gPhone",1); ok=false; } else showErr("gPhone",0);
+  if(!ok) return;
+
+  var lead={ name:name, email:email, phone:phone, buyer_type:document.getElementById("gType").value,
+             deal:(pendingAction&&pendingAction.id)||"", source:"homes.spchomestx.net", ts:new Date().toISOString() };
+  sendLead(lead);
+
+  unlocked=true;
+  try{ localStorage.setItem("spc_unlocked","1"); localStorage.setItem("spc_lead",JSON.stringify(lead)); }catch(e){}
+  document.getElementById("welcomeLine").textContent="Welcome, "+name.split(" ")[0]+" · full access unlocked";
+  closeGate();
+  render();
+  if(pendingAction){
+    var act=pendingAction.type, id=pendingAction.id;
+    if(id && (act==="address"||act==="photos"||act==="docs")) openModal(id);
+    if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
+  }
+});
+
+function queueLead(lead){
+  try{ var q=JSON.parse(localStorage.getItem("spc_lead_queue")||"[]"); q.push(lead); localStorage.setItem("spc_lead_queue", JSON.stringify(q.slice(-25))); }catch(e){}
+}
+function sendLead(lead){
+  if(!GHL_LEAD_WEBHOOK){ console.log("[SPC] lead captured (no webhook set):", lead); return; }
+  try{
+    fetch(GHL_LEAD_WEBHOOK, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(lead), keepalive:true})
+      .then(function(r){ if(!r.ok) queueLead(lead); })
+      .catch(function(){ queueLead(lead); });
+  }catch(e){ queueLead(lead); }
+}
+function flushLeadQueue(){
+  if(!GHL_LEAD_WEBHOOK) return;
+  var q; try{ q=JSON.parse(localStorage.getItem("spc_lead_queue")||"[]"); }catch(e){ q=[]; }
+  if(!q.length) return;
+  localStorage.removeItem("spc_lead_queue");
+  q.forEach(function(l){ sendLead(l); });
+}
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+var LB = {
+  i:0,
+  open:function(i){
+    if(!modalDeal||!modalDeal.photos.length) return;
+    if(!unlocked && i>=2){ openGate("photos"); return; }
+    this.i=i; document.getElementById("lbimg").src=photoUrl(modalDeal,i,1600,1200);
+    document.getElementById("lb").classList.add("open");
+  },
+  close:function(){ document.getElementById("lb").classList.remove("open"); },
+  step:function(d){
+    if(!modalDeal) return;
+    var n=modalDeal.photos.length, lim=unlocked?n:Math.min(2,n);
+    var i=(this.i+d+lim)%lim;
+    this.i=i; document.getElementById("lbimg").src=photoUrl(modalDeal,i,1600,1200);
+  }
+};
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"||e.key===" "){
+    var ae=document.activeElement;
+    if(ae && ae.getAttribute && ae.getAttribute("role")==="button"){ e.preventDefault(); ae.click(); return; }
+  }
+  if(document.getElementById("lb").classList.contains("open")){
+    if(e.key==="Escape") LB.close();
+    if(e.key==="ArrowRight") LB.step(1);
+    if(e.key==="ArrowLeft") LB.step(-1);
+  } else if(document.getElementById("gate").classList.contains("open")){
+    if(e.key==="Escape") closeGate();
+  } else if(document.getElementById("ov").classList.contains("open")){
+    if(e.key==="Escape") closeModal();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+if(unlocked){
+  try{ var l=JSON.parse(localStorage.getItem("spc_lead")||"{}"); if(l.name) document.getElementById("welcomeLine").textContent="Welcome back, "+l.name.split(" ")[0]+" · full access unlocked"; }catch(e){}
+}
+flushLeadQueue();
+(function(){
+  var did = new URLSearchParams(location.search).get("deal") || (location.hash||"").replace(/^#/,"");
+  var has = did && DEALS.some(function(d){ return d.id===did; });
+  if(has){ document.getElementById("marketSel").value = "all"; }
+  render();
+  if(has){ openModal(did); }
+})();
+</script>
+</body>
+</html>
