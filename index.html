@@ -432,6 +432,7 @@ var DEALS = [
     beds:3, baths:2, sqft:2025, year:null, lot:"",
     price:215000, arv:350000, arvText:"$340–350K", spread:135000,
     lat:32.6940, lng:-97.4530, listingId:"bff6854b-c07d-482c-972e-f64bc183ebcd", photoExt:"jpg",
+    packet:"packets/8012-Chapin-Rd-CMA.pdf", packetName:"8012 Chapin Rd — CMA.pdf",
     photos:["a382df2e-24c6-4210-8ddc-83d7b84e67fa","6696bd0c-2d20-40fc-b5dc-e812e7e13aeb","089888a6-9b45-477f-a181-2ec84a368237","e9e83565-dcf3-440d-b66c-b87719897870","c7b6b273-84a0-4ed9-9560-b008f825c4b8","899f8894-429d-4c30-b3be-e3c5dd45848a","33a31aa1-685b-4941-93fa-ebe041e1552d","95a62013-5deb-413c-b16b-cca352bd5ec8"],
     desc:"Off-market cash opportunity in one of <strong>Fort Worth's most established inner-ring submarkets</strong>. Single-story brick ranch with genuine square footage and solid bones in Benbrook, just off Loop 820 / I-30 — a full-rehab <strong>fix-and-flip or long-term rental</strong> in a tight, high-demand area.",
     cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["Needs work","bad"],Interior:["Full cosmetic","bad"]},
@@ -443,6 +444,7 @@ var DEALS = [
     beds:3, baths:1, sqft:1096, year:null, lot:"",
     price:155000, arv:300000, arvText:"$295–300K", spread:145000,
     lat:32.7360, lng:-96.8755, listingId:"a908be2c-3037-4d02-94a4-e6f99a3821d3", photoExt:"jpg",
+    packet:"packets/3834-Shelley-Blvd-CMA.pdf", packetName:"3834 Shelley Blvd — CMA.pdf",
     photos:["8ccb9b5c-8259-486a-9b6b-55a6a1f5fa29","e3a60535-59d2-4005-9d3a-571f19ee81f5","da87a9a9-0d04-4ffa-960a-9c47d2149e14","1c922614-b848-44b6-b4aa-d21a1a2eb9b4","7b1abb4c-c8d1-4a28-a873-323cac63e29b","5faf7382-eb0d-4d81-8c74-d8b359146418","e7d6c600-3871-410c-ae16-efa34a1381fe","ad9a6bf9-67e9-419e-8003-c64144a79f04"],
     desc:"Off-market <strong>fix-and-flip in Oak Cliff / southwest Dallas</strong> (75211). A classic 3/1 with a strong ARV spread in a steadily appreciating, rental-heavy pocket close to downtown. Bring your contractor and walk it before you offer.",
     cond:{Roof:["Needs work","bad"],HVAC:["Needs work","bad"],Foundation:["TBD",""],Interior:["Full cosmetic","bad"]},
@@ -619,6 +621,14 @@ function copyDealLink(id, btn){
   if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done, function(){ prompt("Copy this link:", url); }); }
   else { prompt("Copy this link:", url); }
 }
+function downloadPacket(id){
+  var d = DEALS.find(function(x){return x.id===id;});
+  if(!d || !d.packet) return;
+  trackEvent("packet", d);
+  var a = document.createElement("a");
+  a.href = d.packet; a.download = d.packetName || "deal-packet.pdf"; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
 
 function modalHTML(d){
   var hasPhotos = d.photos && d.photos.length>0;
@@ -673,9 +683,16 @@ function modalHTML(d){
     condBlock = '<h3 class="h3">Property Condition</h3><table class="dl">'+rows+'</table>';
   }
 
-  var docs = unlocked
-    ? '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details.</p></div><button class="b3" style="flex:none;padding:10px 16px" onclick="window.location.href=\'tel:+18176972534\'">📄 Get the Packet</button></div>'
-    : '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
+  var docs;
+  if(!unlocked){
+    docs = '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
+  } else if(d.packet){
+    docs = '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>MLS comps (CMA) for '+esc(d.street)+' — scope, title &amp; access on request.</p></div>'+
+           '<a class="b3" style="flex:none;padding:10px 16px;text-decoration:none" href="'+d.packet+'" download="'+esc(d.packetName||"deal-packet.pdf")+'" onclick="trackEvent(\'packet\',modalDeal)">📄 Download Comps (PDF)</a></div>';
+  } else {
+    docs = '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details — sent on request.</p></div>'+
+           '<a class="b3" style="flex:none;padding:10px 16px;text-decoration:none" href="tel:+18176972534" onclick="trackEvent(\'packet_request\',modalDeal)">&#9742; Request the Packet</a></div>';
+  }
 
   var aside =
     '<div class="maside"><div class="dealcard"><div class="top">'+
@@ -761,6 +778,7 @@ document.getElementById("gform").addEventListener("submit", function(ev){
   if(pendingAction){
     var act=pendingAction.type, id=pendingAction.id;
     if(id && (act==="address"||act==="photos"||act==="docs")) openModal(id);
+    if(act==="docs" && id){ setTimeout(function(){ downloadPacket(id); }, 450); }
     if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
   }
 });
