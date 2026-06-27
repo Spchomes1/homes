@@ -154,6 +154,10 @@ a{color:var(--blue);text-decoration:none}
 .docs{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px dashed var(--panel-bd);border-radius:11px;padding:16px 18px}
 .docs .ic{width:40px;height:40px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
 .docs .t{flex:1}.docs .t b{color:var(--navy);font-size:15px}.docs .t p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.freebar{background:linear-gradient(90deg,var(--navy),var(--blue));color:#eaf0fb;font-size:13.5px;text-align:center;padding:11px 16px;line-height:1.5}
+.freebar b{color:#fff}
+.freebar button{background:#fff;color:var(--navy);border:0;border-radius:7px;font-weight:800;font-family:inherit;font-size:12.5px;padding:6px 12px;margin-left:4px;cursor:pointer;vertical-align:middle}
+.freebar button:hover{background:#e8c889}
 
 /* ---------- ASIDE (sticky deal card) ---------- */
 .maside{align-self:start;position:sticky;top:14px}
@@ -516,6 +520,14 @@ var gateSignupTitle = "", gateSignupSub = "";   // context-specific copy for sig
 var pendingAction = null;   // {type, deal}
 var map, markers = {}, cardCarousel = {};
 
+// ---- Metered access: a logged-out visitor may FULLY view this many distinct
+// properties for free, then must create an account to see any more. ----
+var FREE_VIEWS = 3;
+function freedSet(){ try{ return JSON.parse(localStorage.getItem("spc_freed")||"[]"); }catch(e){ return []; } }
+function grantFree(id){ var f=freedSet(); if(f.indexOf(id)<0){ f.push(id); try{ localStorage.setItem("spc_freed",JSON.stringify(f)); }catch(e){} } return f; }
+function showFull(id){ return unlocked || freedSet().indexOf(id)>=0; }   // logged in (or auth off) OR a free-viewed property
+function freeLeft(){ return Math.max(0, FREE_VIEWS - freedSet().length); }
+
 function money(n){ return "$" + Number(n).toLocaleString("en-US"); }
 function moneyK(n){ return "$" + Math.round(n/1000) + "K"; }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -556,7 +568,7 @@ function cardHTML(d){
   } else {
     photoArea = '<div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC"><span>Photos available on request</span></div>';
   }
-  var addr = unlocked
+  var addr = showFull(d.id)
     ? esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)
     : esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' <span class="lock">🔒 address</span>';
   var stats = d.type==="land"
@@ -634,6 +646,17 @@ var modalDeal = null;
 function openModal(id){
   var d = DEALS.find(function(x){return x.id===id;});
   if(!d) return;
+  // Metered: logged-out visitors get FREE_VIEWS full listings, then the gate.
+  if(!unlocked){
+    var freed = freedSet();
+    if(freed.indexOf(id) < 0){                 // a property they haven't viewed yet
+      if(freed.length >= FREE_VIEWS){           // free quota used up -> ask them to sign in
+        openGate("limit", id);
+        return;
+      }
+      grantFree(id);                            // spend one free view on this property
+    }
+  }
   modalDeal = d;
   bumpView(id); trackEvent("view", d); logPropertyView(d);
   document.getElementById("modalInner").innerHTML = modalHTML(d);
@@ -658,6 +681,8 @@ function copyDealLink(id, btn){
 }
 
 function modalHTML(d){
+  var full = showFull(d.id);              // logged in OR one of this visitor's free views
+  var freeView = full && !unlocked;       // a free preview by a logged-out visitor
   var hasPhotos = d.photos && d.photos.length>0;
   var gal;
   if(hasPhotos){
@@ -666,7 +691,7 @@ function modalHTML(d){
     var galCls = d.photos.length>=3 ? "mosaic" : (d.photos.length===2 ? "two" : "one");
     for(var i=0;i<show;i++){
       var cls = (galCls==="mosaic" && i===0) ? "big" : "";
-      var locked = (!unlocked && i>=2);  // first 2 free, rest locked until unlock
+      var locked = (!full && i>=2);  // first 2 photos always visible; rest shown for full views
       var overlay = "";
       if(i===show-1 && d.photos.length>show){
         overlay = '<div class="more" role="button" tabindex="0" aria-label="View all '+d.photos.length+' photos" onclick="event.stopPropagation();unlockOr(\'photos\',\''+d.id+'\','+show+')">+'+(d.photos.length-show)+' more<br>View all photos</div>';
@@ -682,7 +707,7 @@ function modalHTML(d){
     gal = '<div class="mgal one"><div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC Homes"><span style="font-weight:700">Photos available on request — contact your SPC agent</span></div></div>';
   }
 
-  var addrLine = unlocked
+  var addrLine = full
     ? '<div class="maddr">📍 '+esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+'</div>'
     : '<div class="maddr">📍 '+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' · '+esc(d.county)+' County'+
       ' <button class="btn-unlock" onclick="openGate(\'address\')">🔓 View full address</button></div>';
@@ -710,7 +735,7 @@ function modalHTML(d){
     condBlock = '<h3 class="h3">Property Condition</h3><table class="dl">'+rows+'</table>';
   }
 
-  var docs = unlocked
+  var docs = full
     ? '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details.</p></div><button class="b3" style="flex:none;padding:10px 16px" onclick="window.location.href=\'tel:+18176972534\'">📄 Get the Packet</button></div>'
     : '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
 
@@ -721,7 +746,7 @@ function modalHTML(d){
       (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':'')+
     '</div><div class="cta">'+
       '<button class="b1" onclick="unlockOr(\'offer\',\''+d.id+'\')">Make an Offer</button>'+
-      '<button class="b2" onclick="unlockOr(\'address\',\''+d.id+'\')">'+(unlocked?'View Full Address':'Unlock Full Details')+'</button>'+
+      '<button class="b2" onclick="'+(freeView?"openGate('general')":"unlockOr('address','"+d.id+"')")+'">'+(unlocked?'View Full Address':(freeView?'✓ Create Free Account':'Unlock Full Details'))+'</button>'+
       '<a class="b3" href="tel:+18176972534" style="text-decoration:none">&#9742; Call / Text Agent</a>'+
       '<button class="b3" onclick="copyDealLink(\''+d.id+'\',this)">&#128279; Copy Share Link</button>'+
     '</div></div>'+
@@ -729,7 +754,11 @@ function modalHTML(d){
       '<a href="tel:+18176972534">&#9742; 817-697-2534</a></div>'+
     '</div>';
 
-  return gal +
+  var freeBanner = freeView
+    ? '<div class="freebar">🔓 <b>Free preview</b> · '+(freeLeft()>0 ? (freeLeft()+' free '+(freeLeft()===1?'listing':'listings')+' left') : 'this is your last free listing')+
+      ' — <button onclick="openGate(\'general\')">Create a free account</button> for unlimited access.</div>'
+    : '';
+  return gal + freeBanner +
     '<div class="mbody"><div class="mmain">'+
       '<div class="statusrow"><span class="pill'+(d.type==="land"?" land":"")+'">'+(d.type==="land"?"Build Lot · Available":"Available")+'</span>'+
         '<span style="color:var(--muted);font-size:13px;font-weight:600">Off-Market · '+esc(d.market)+'</span></div>'+
@@ -749,7 +778,7 @@ function modalHTML(d){
    GATE  (sign up / log in via Supabase Auth)
    ============================================================ */
 function unlockOr(action, id, payload){
-  if(unlocked){
+  if(showFull(id)){
     if(action==="photos"){ LB.open(payload||0); }
     else if(action==="offer"){ window.location.href = "tel:+18176972534"; }
     return;
@@ -781,6 +810,7 @@ function openGate(action, id){
   if(action==="offer"){ gateSignupTitle="Create an account to make an offer"; gateSignupSub="Sign up and an SPC agent will send full details and take your offer."; }
   else if(action==="docs"){ gateSignupTitle="Unlock the document packet"; gateSignupSub="Create your free account for comps, scope of work, title & access details."; }
   else if(action==="general"){ gateSignupTitle="Get early access to deals"; gateSignupSub="Create a free account — we send off-market DFW & Houston deals before they go public."; }
+  else if(action==="limit"){ gateSignupTitle="Create your free account to keep viewing"; gateSignupSub="You've viewed your "+FREE_VIEWS+" free listings — create a free account for unlimited access to every off-market deal."; }
   else { gateSignupTitle="Create your free account"; gateSignupSub="Sign up to reveal the full address, all photos & the document packet — free."; }
   setGateMode("signup");
   document.getElementById("gate").classList.add("open");
@@ -868,7 +898,7 @@ function onAuthSuccess(user, leadInfo){
   render();
   if(pendingAction){
     var act=pendingAction.type, id=pendingAction.id;
-    if(id && (act==="address"||act==="photos"||act==="docs")) openModal(id);
+    if(id && (act==="address"||act==="photos"||act==="docs"||act==="limit")) openModal(id);
     if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
   }
 }
@@ -929,14 +959,14 @@ var LB = {
   i:0,
   open:function(i){
     if(!modalDeal||!modalDeal.photos.length) return;
-    if(!unlocked && i>=2){ openGate("photos"); return; }
+    if(!showFull(modalDeal.id) && i>=2){ openGate("photos"); return; }
     this.i=i; document.getElementById("lbimg").src=photoUrl(modalDeal,i,1600,1200);
     document.getElementById("lb").classList.add("open");
   },
   close:function(){ document.getElementById("lb").classList.remove("open"); },
   step:function(d){
     if(!modalDeal) return;
-    var n=modalDeal.photos.length, lim=unlocked?n:Math.min(2,n);
+    var n=modalDeal.photos.length, lim=showFull(modalDeal.id)?n:Math.min(2,n);
     var i=(this.i+d+lim)%lim;
     this.i=i; document.getElementById("lbimg").src=photoUrl(modalDeal,i,1600,1200);
   }
