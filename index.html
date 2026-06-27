@@ -158,6 +158,23 @@ a{color:var(--blue);text-decoration:none}
 .freebar b{color:#fff}
 .freebar button{background:#fff;color:var(--navy);border:0;border-radius:7px;font-weight:800;font-family:inherit;font-size:12.5px;padding:6px 12px;margin-left:4px;cursor:pointer;vertical-align:middle}
 .freebar button:hover{background:#e8c889}
+/* status + urgency */
+.badge.sold{background:var(--dark)}.badge.pending{background:var(--warn)}
+.pill.sold{background:var(--dark)}.pill.pending{background:var(--warn)}
+.urg{display:inline-block;font-size:11.5px;font-weight:800;padding:4px 9px;border-radius:20px;margin-left:6px;vertical-align:middle;line-height:1.4}
+.urg.hot{background:#fdecea;color:#b3261e;border:1px solid #f5c2bd}
+.urg.new{background:#e9f7ef;color:#1f7a44;border:1px solid #bfe6cd}
+.curg{margin-top:3px}
+.cpricerow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.savebtn{flex:none;border:1px solid var(--panel-bd);background:#fff;border-radius:50%;width:34px;height:34px;font-size:16px;line-height:1;cursor:pointer;padding:0;transition:border-color .15s,background .15s}
+.savebtn:hover{border-color:var(--pin)}
+.savebtn.on{border-color:var(--pin);background:#fdecea}
+.duebar{background:var(--panel);border:1px solid var(--panel-bd);border-left:3px solid var(--warn);border-radius:9px;padding:9px 12px;font-size:13px;color:var(--ink);margin:6px 0 2px}
+.duebar b{color:var(--warn)}
+.hdr nav a.bell{color:#e8c889;font-weight:700}
+.hdr nav a.bell:hover{color:#fff}
+.gform textarea{width:100%;padding:13px 14px;border:1px solid var(--panel-bd);border-radius:10px;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;resize:vertical}
+.gform textarea:focus{outline:none;border-color:var(--blue)}
 
 /* ---------- ASIDE (sticky deal card) ---------- */
 .maside{align-self:start;position:sticky;top:14px}
@@ -231,7 +248,7 @@ a{color:var(--blue);text-decoration:none}
   .results{height:auto;overflow:visible}
   .mbody{grid-template-columns:1fr}
   .maside{position:static}
-  .hdr nav a:not(.call){display:none}
+  .hdr nav a:not(.call):not(.bell){display:none}
   .selectors{flex:1}
   .sel{min-width:0;flex:1}
 }
@@ -264,6 +281,7 @@ a{color:var(--blue);text-decoration:none}
     <nav>
       <a href="#">Browse Deals</a>
       <a href="#" onclick="openGate('general');return false;">How It Works</a>
+      <a class="bell" href="#" onclick="openBuyBox();return false;">🔔 Deal Alerts</a>
       <a class="call" href="tel:+18176972534">&#9742;&nbsp; 817-697-2534</a>
     </nav>
   </div>
@@ -328,6 +346,52 @@ a{color:var(--blue);text-decoration:none}
 <!-- DETAIL MODAL -->
 <div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Property details"><button class="close" aria-label="Close" onclick="closeModal()">&times;</button><div id="modalInner"></div></div>
+</div>
+
+<!-- MAKE AN OFFER -->
+<div class="gate" id="offerGate" onclick="if(event.target===this)closeOffer()">
+  <div class="gatebox">
+    <div class="gh"><button class="gx" aria-label="Close" onclick="closeOffer()">&times;</button>
+      <h3>Make an offer</h3><p id="offerSub">Your offer goes straight to the SPC dispo team.</p></div>
+    <form class="gform" id="offerForm" novalidate>
+      <div class="autherr" id="offerErr" role="alert"></div>
+      <div class="fld"><label for="ofPrice">Your Offer — cash <span class="req">*</span></label>
+        <input id="ofPrice" inputmode="numeric" placeholder="$"></div>
+      <div class="fld"><label for="ofClose">Target Close Date</label>
+        <input id="ofClose" type="date"></div>
+      <div class="fld"><label for="ofFin">Financing</label>
+        <select id="ofFin"><option>Cash</option><option>Hard Money</option><option>Private / Other</option></select></div>
+      <div class="fld"><label for="ofPof">Proof of Funds</label>
+        <select id="ofPof"><option>Yes — can provide</option><option>Available on request</option><option>Need a little time</option></select></div>
+      <div class="fld"><label for="ofNote">Note (optional)</label>
+        <textarea id="ofNote" rows="2" placeholder="Anything we should know?"></textarea></div>
+      <button class="sub" type="submit" id="ofSubmit">Send Offer</button>
+      <p class="fine">An SPC agent reviews every offer. A property isn't under contract until a signed contract &amp; deposit are received.</p>
+    </form>
+  </div>
+</div>
+
+<!-- BUY-BOX / DEAL ALERTS -->
+<div class="gate" id="bbGate" onclick="if(event.target===this)closeBuyBox()">
+  <div class="gatebox">
+    <div class="gh"><button class="gx" aria-label="Close" onclick="closeBuyBox()">&times;</button>
+      <h3>🔔 Deal alerts</h3><p>Tell us what you buy — we'll email you the moment a matching off-market deal drops.</p></div>
+    <form class="gform" id="bbForm" novalidate>
+      <div class="autherr" id="bbErr" role="alert"></div>
+      <div class="fld"><label for="bbMarket">Market</label>
+        <select id="bbMarket"><option value="">All Texas</option><option value="DFW">DFW (Dallas–Fort Worth)</option><option value="Houston">Houston</option></select></div>
+      <div class="fld"><label for="bbType">Property Type</label>
+        <select id="bbType"><option value="any">Any</option><option value="house">Houses</option><option value="land">Land / lots</option></select></div>
+      <div class="fld"><label for="bbMax">Max Cash Price</label>
+        <input id="bbMax" inputmode="numeric" placeholder="$ — blank = no max"></div>
+      <div class="fld"><label for="bbBeds">Min Beds</label>
+        <input id="bbBeds" inputmode="numeric" placeholder="blank = any"></div>
+      <div class="fld"><label for="bbSpread">Min Spread (ARV − price)</label>
+        <input id="bbSpread" inputmode="numeric" placeholder="$ — blank = any"></div>
+      <button class="sub" type="submit" id="bbSubmit">Save my buy-box &amp; alerts</button>
+      <p class="fine">We only email you about deals that fit. Update or turn off anytime.</p>
+    </form>
+  </div>
 </div>
 
 <!-- GATE (sign up / log in) -->
@@ -506,7 +570,7 @@ var SB = "https://gqhfgqiahynbedbzurzq.supabase.co/storage/v1/render/image/publi
    ============================================================ */
 var DEALS = [
   {
-    id:"avalon", name:"2013 Avalon Ln", status:"active", type:"house", market:"DFW",
+    id:"avalon", name:"2013 Avalon Ln", status:"active", addedDate:"2026-06-26", type:"house", market:"DFW",
     street:"2013 Avalon Ln", city:"Arlington", state:"TX", zip:"76014", county:"Tarrant",
     beds:4, baths:2, sqft:2074, year:1972, lot:"",
     price:220000, arv:325000, arvText:"$320–330K", spread:105000,
@@ -517,7 +581,7 @@ var DEALS = [
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Close 7/8/26 &nbsp;|&nbsp; National Title &nbsp;|&nbsp; $3,000 non-refundable earnest money"
   },
   {
-    id:"frost", name:"2846 Frost Ave", status:"active", type:"house", market:"DFW",
+    id:"frost", name:"2846 Frost Ave", status:"active", addedDate:"2026-06-22", type:"house", market:"DFW",
     street:"2846 Frost Ave", city:"Dallas", state:"TX", zip:"75215", county:"Dallas",
     beds:2, baths:1, sqft:728, year:1940, lot:"0.09 ac",
     price:80000, arv:190000, arvText:"$190K", spread:110000,
@@ -528,7 +592,7 @@ var DEALS = [
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Vacant &nbsp;|&nbsp; Close 7/22/26 &nbsp;|&nbsp; Fidelity National Title &nbsp;|&nbsp; $3,000 non-refundable earnest money"
   },
   {
-    id:"chapin", name:"8012 Chapin Rd", status:"active", type:"house", market:"DFW",
+    id:"chapin", name:"8012 Chapin Rd", status:"active", addedDate:"2026-06-22", type:"house", market:"DFW",
     street:"8012 Chapin Rd", city:"Benbrook", state:"TX", zip:"76116", county:"Tarrant",
     beds:3, baths:2, sqft:2025, year:null, lot:"",
     price:215000, arv:350000, arvText:"$340–350K", spread:135000,
@@ -539,7 +603,7 @@ var DEALS = [
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Vacant (combo access) &nbsp;|&nbsp; 1836 Title &nbsp;|&nbsp; $3,000 earnest"
   },
   {
-    id:"shelley", name:"3834 Shelley Blvd", status:"active", type:"house", market:"DFW",
+    id:"shelley", name:"3834 Shelley Blvd", status:"active", addedDate:"2026-06-22", type:"house", market:"DFW",
     street:"3834 Shelley Blvd", city:"Dallas", state:"TX", zip:"75211", county:"Dallas",
     beds:3, baths:1, sqft:1096, year:null, lot:"",
     price:155000, arv:300000, arvText:"$295–300K", spread:145000,
@@ -550,7 +614,7 @@ var DEALS = [
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; $3,000 earnest"
   },
   {
-    id:"marietta", name:"4838 Marietta Ln", status:"active", type:"house", market:"Houston",
+    id:"marietta", name:"4838 Marietta Ln", status:"active", addedDate:"2026-06-22", type:"house", market:"Houston",
     street:"4838 Marietta Ln", city:"Houston", state:"TX", zip:"77021", county:"Harris",
     beds:2, baths:1, sqft:1235, year:1950, lot:"0.158 ac",
     price:130000, arv:250000, arvText:"$250K", spread:120000,
@@ -561,7 +625,7 @@ var DEALS = [
     terms:"Cash / Hard Money &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; $3,000 earnest"
   },
   {
-    id:"jamaica", name:"4703 Jamaica St", status:"active", type:"land", market:"DFW",
+    id:"jamaica", name:"4703 Jamaica St", status:"active", addedDate:"2026-06-22", type:"land", market:"DFW",
     street:"4703 Jamaica St", city:"Dallas", state:"TX", zip:"75210", county:"Dallas",
     beds:null, baths:null, sqft:null, year:null, lot:"0.15 ac",
     price:70000, arv:null, arvText:"AVM $192–307K", spread:null,
@@ -585,6 +649,14 @@ var gateMode = "signup";    // "signup" | "login"
 var gateSignupTitle = "", gateSignupSub = "";   // context-specific copy for signup mode
 var pendingAction = null;   // {type, deal}
 var map, markers = {}, cardCarousel = {};
+
+// ---- Engagement: saved deals, buy-box, per-deal stats ----
+var savedSet = [];        // deal ids this visitor has saved
+var myBuyBox = null;      // this visitor's saved-search criteria
+var dealStats = {};       // deal_id -> {views, investors} (public aggregate, for urgency UI)
+function isSaved(id){ return savedSet.indexOf(id)>=0; }
+function dealStatus(d){ return d.status||"active"; }
+function isNew(d){ if(!d.addedDate) return false; var ms=Date.now()-Date.parse(d.addedDate+"T12:00:00Z"); return ms>=0 && ms<12*864e5; }
 
 // ---- Metered access: a logged-out visitor may FULLY view this many distinct
 // properties for free, then must create an account to see any more. ----
@@ -644,13 +716,14 @@ function cardHTML(d){
   return '<div class="card" id="card-'+d.id+'" role="button" tabindex="0" aria-label="View deal: '+money(d.price)+', '+esc(d.city)+' '+esc(d.zip)+'" onclick="openModal(\''+d.id+'\')" '+
          'onmouseenter="hiPin(\''+d.id+'\',1)" onmouseleave="hiPin(\''+d.id+'\',0)">'+
     '<div class="cphoto">'+photoArea+
-      '<span class="badge'+(d.type==="land"?' land':'')+'">'+(d.type==="land"?"Lot":"Available")+'</span>'+
+      statusBadge(d)+
       '<span class="tag">'+esc(d.county)+' Co.</span>'+
     '</div>'+
     '<div class="cbody">'+
-      '<div class="cprice">'+money(d.price)+arv+'</div>'+
+      '<div class="cpricerow"><div class="cprice">'+money(d.price)+arv+'</div>'+saveHeart(d.id)+'</div>'+
       '<div class="caddr">📍 '+addr+'</div>'+
       '<div class="cstats">'+stats+'</div>'+
+      (urgencyChip(d)?'<div class="curg">'+urgencyChip(d)+'</div>':'')+
     '</div></div>';
 }
 
@@ -811,8 +884,15 @@ function modalHTML(d){
       '<div class="row"><span class="k">ARV</span><span class="v">'+(d.arv?money(d.arv):esc(d.arvText))+'</span></div>'+
       (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':'')+
     '</div><div class="cta">'+
+<<<<<<< Updated upstream
       '<button class="b1" onclick="openOffer(\''+d.id+'\')">Make an Offer</button>'+
+=======
+      (dealStatus(d)==="sold"
+        ? '<button class="b1" disabled style="opacity:.55;cursor:default">✓ Sold</button>'
+        : '<button class="b1" onclick="makeOffer(\''+d.id+'\')">Make an Offer</button>')+
+>>>>>>> Stashed changes
       '<button class="b2" onclick="'+(freeView?"openGate('general')":"unlockOr('address','"+d.id+"')")+'">'+(unlocked?'View Full Address':(freeView?'✓ Create Free Account':'Unlock Full Details'))+'</button>'+
+      '<button class="b3" onclick="toggleSave(\''+d.id+'\')">'+(isSaved(d.id)?'❤ Saved':'🤍 Save Deal')+'</button>'+
       '<a class="b3" href="tel:+18176972534" style="text-decoration:none">&#9742; Call / Text Agent</a>'+
       '<button class="b3" onclick="copyDealLink(\''+d.id+'\',this)">&#128279; Copy Share Link</button>'+
     '</div></div>'+
@@ -826,13 +906,14 @@ function modalHTML(d){
     : '';
   return gal + freeBanner +
     '<div class="mbody"><div class="mmain">'+
-      '<div class="statusrow"><span class="pill'+(d.type==="land"?" land":"")+'">'+(d.type==="land"?"Build Lot · Available":"Available")+'</span>'+
-        '<span style="color:var(--muted);font-size:13px;font-weight:600">Off-Market · '+esc(d.market)+'</span></div>'+
+      '<div class="statusrow">'+modalPill(d)+
+        '<span style="color:var(--muted);font-size:13px;font-weight:600">Off-Market · '+esc(d.market)+'</span>'+urgencyChip(d)+'</div>'+
       '<div class="bigprice">'+money(d.price)+'</div>'+
       addrLine +
       '<p class="msub">'+(d.type==="land"?"Single-Family Build Lot":"Single-Family — Fix &amp; Flip / Rental")+'</p>'+
       '<div class="mstats">'+stats+'</div>'+
       numbers +
+      (dealStatus(d)!=="sold" ? '<div class="duebar">⏳ Offers reviewed <b>'+offersDue()+'</b> — serious cash buyers move first.</div>' : '')+
       '<h3 class="h3">About This Deal</h3><p class="desc">'+d.desc+'</p>'+
       condBlock +
       '<h3 class="h3">Document Packet</h3>'+docs+
@@ -877,6 +958,9 @@ function openGate(action, id){
   else if(action==="docs"){ gateSignupTitle="Unlock the document packet"; gateSignupSub="Create your free account for comps, scope of work, title & access details."; }
   else if(action==="general"){ gateSignupTitle="Get early access to deals"; gateSignupSub="Create a free account — we send off-market DFW & Houston deals before they go public."; }
   else if(action==="limit"){ gateSignupTitle="Create your free account to keep viewing"; gateSignupSub="You've viewed your "+FREE_VIEWS+" free listings — create a free account for unlimited access to every off-market deal."; }
+  else if(action==="save"){ gateSignupTitle="Create a free account to save deals"; gateSignupSub="Sign up to save your favorite deals and get alerts — free."; }
+  else if(action==="offer2"){ gateSignupTitle="Create an account to make an offer"; gateSignupSub="Sign up and your offer goes straight to the SPC dispo team."; }
+  else if(action==="alerts"){ gateSignupTitle="Get new-deal alerts"; gateSignupSub="Create a free account and we'll email you the moment a deal matches your buy-box."; }
   else { gateSignupTitle="Create your free account"; gateSignupSub="Sign up to reveal the full address, all photos & the document packet — free."; }
   setGateMode("signup");
   document.getElementById("gate").classList.add("open");
@@ -960,12 +1044,20 @@ function onAuthSuccess(user, leadInfo){
   trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null, {buyer_type:bt, viewsAll:getViews()});
   backfillAnonViews();   // record the homes they browsed before signing up
   setWelcome(user);
+  loadEngagement();
   closeGate();
   render();
   if(pendingAction){
     var act=pendingAction.type, id=pendingAction.id;
     if(id && (act==="address"||act==="photos"||act==="docs"||act==="limit")) openModal(id);
+<<<<<<< Updated upstream
     if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ openOffer(id); }, 300); }
+=======
+    else if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
+    else if(act==="save" && id){ toggleSave(id); }
+    else if(act==="offer2" && id){ openModal(id); makeOffer(id); }
+    else if(act==="alerts" || act==="buybox"){ openBuyBox(); }
+>>>>>>> Stashed changes
   }
 }
 
@@ -1105,6 +1197,128 @@ async function backfillAnonViews(){
   try{ await sbAuth.from("property_views").insert(rows); }catch(e){}
 }
 
+/* ============================================================
+   ENGAGEMENT: saved deals, offers, buy-box alerts, deal stats
+   ============================================================ */
+async function loadDealStats(){
+  if(!sbAuth) return;
+  try{
+    var r = await sbAuth.rpc("deal_stats");
+    if(r && r.data){ dealStats={}; r.data.forEach(function(s){ dealStats[s.deal_id]={views:Number(s.views), investors:Number(s.investors)}; }); render(); refreshOpenModal(); }
+  }catch(e){}
+}
+async function loadEngagement(){
+  if(!sbAuth || !currentUser) return;
+  try{ var s = await sbAuth.from("saved_deals").select("deal_id"); savedSet = (s.data||[]).map(function(x){return x.deal_id;}); }catch(e){}
+  try{ var b = await sbAuth.from("buy_boxes").select("*").eq("user_id", currentUser.id).maybeSingle(); myBuyBox = (b&&b.data)||null; }catch(e){}
+  render(); refreshOpenModal();
+}
+
+/* ----- status + urgency (feature 4) ----- */
+function statusBadge(d){
+  var s=dealStatus(d);
+  if(s==="sold") return '<span class="badge sold">SOLD'+(d.soldPrice?' '+moneyK(d.soldPrice):'')+'</span>';
+  if(s==="pending") return '<span class="badge pending">UNDER CONTRACT</span>';
+  return '<span class="badge'+(d.type==="land"?' land':'')+'">'+(d.type==="land"?"Lot":"Available")+'</span>';
+}
+function modalPill(d){
+  var s=dealStatus(d);
+  if(s==="sold") return '<span class="pill sold">SOLD'+(d.soldPrice?' · '+money(d.soldPrice):'')+'</span>';
+  if(s==="pending") return '<span class="pill pending">Under Contract</span>';
+  return '<span class="pill'+(d.type==="land"?" land":"")+'">'+(d.type==="land"?"Build Lot · Available":"Available")+'</span>';
+}
+function urgencyChip(d){
+  var st=dealStats[d.id];
+  if(st && st.investors>=3) return '<span class="urg hot">🔥 '+st.investors+' investors viewed</span>';
+  if(isNew(d)) return '<span class="urg new">✨ New this week</span>';
+  return '';
+}
+function offersDue(){
+  var n=new Date(), add=(5-n.getDay()+7)%7; if(add===0) add=7; n.setDate(n.getDate()+add);
+  return n.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
+}
+
+/* ----- save / favorite (feature 2) ----- */
+function saveHeart(id){
+  return '<button class="savebtn'+(isSaved(id)?' on':'')+'" title="Save deal" aria-label="Save deal" onclick="event.stopPropagation();toggleSave(\''+id+'\')">'+(isSaved(id)?'❤':'🤍')+'</button>';
+}
+async function toggleSave(id){
+  if(!unlocked){ pendingAction={type:"save", id:id}; openGate("save", id); return; }
+  var d=DEALS.find(function(x){return x.id===id;});
+  if(isSaved(id)){
+    savedSet=savedSet.filter(function(x){return x!==id;});
+    try{ await sbAuth.from("saved_deals").delete().eq("user_id",currentUser.id).eq("deal_id",id); }catch(e){}
+  } else {
+    savedSet.push(id);
+    try{ await sbAuth.from("saved_deals").insert({user_id:currentUser.id, email:currentUser.email, deal_id:id, address:d?viewAddress(d):id}); }catch(e){}
+  }
+  render(); refreshOpenModal();
+}
+
+/* ----- offer form (feature 2) ----- */
+var offerDealId=null;
+function makeOffer(id){
+  if(!unlocked){ pendingAction={type:"offer2", id:id}; openGate("offer2", id); return; }
+  offerDealId=id;
+  var d=DEALS.find(function(x){return x.id===id;});
+  document.getElementById("offerSub").textContent="Your offer on "+esc(d.street)+" goes straight to the SPC dispo team.";
+  document.getElementById("offerErr").className="autherr";
+  document.getElementById("ofPrice").value=d.price||"";
+  document.getElementById("offerGate").classList.add("open"); document.body.style.overflow="hidden";
+}
+function closeOffer(){ document.getElementById("offerGate").classList.remove("open"); if(!document.getElementById("ov").classList.contains("open")) document.body.style.overflow=""; }
+document.getElementById("offerForm").addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  var err=document.getElementById("offerErr");
+  var price=parseInt((document.getElementById("ofPrice").value||"").replace(/[^0-9]/g,""),10);
+  if(!price){ err.textContent="Enter your offer amount."; err.className="autherr show"; return; }
+  var d=DEALS.find(function(x){return x.id===offerDealId;});
+  var btn=document.getElementById("ofSubmit"), lbl=btn.textContent; btn.disabled=true; btn.textContent="Sending…";
+  try{
+    await sbAuth.from("deal_interest").insert({ user_id:currentUser.id, email:currentUser.email, deal_id:offerDealId,
+      address:d?viewAddress(d):offerDealId, kind:"offer", offer_price:price,
+      close_date:document.getElementById("ofClose").value||null, financing:document.getElementById("ofFin").value,
+      proof_of_funds:document.getElementById("ofPof").value, note:document.getElementById("ofNote").value||null });
+    err.textContent="✓ Offer sent — an SPC agent will reach out shortly."; err.className="autherr show ok";
+    setTimeout(closeOffer, 1700);
+  }catch(e){ err.textContent="Couldn't send — call or text 817-697-2534."; err.className="autherr show"; }
+  finally{ btn.disabled=false; btn.textContent=lbl; }
+});
+
+/* ----- buy-box / deal alerts (feature 1) ----- */
+function openBuyBox(){
+  if(!unlocked){ pendingAction={type:"buybox"}; openGate("alerts"); return; }
+  if(myBuyBox){
+    document.getElementById("bbMarket").value=(myBuyBox.markets&&myBuyBox.markets[0])||"";
+    document.getElementById("bbType").value=myBuyBox.prop_type||"any";
+    document.getElementById("bbMax").value=myBuyBox.max_price||"";
+    document.getElementById("bbBeds").value=myBuyBox.min_beds||"";
+    document.getElementById("bbSpread").value=myBuyBox.min_spread||"";
+  }
+  document.getElementById("bbErr").className="autherr";
+  document.getElementById("bbGate").classList.add("open"); document.body.style.overflow="hidden";
+}
+function closeBuyBox(){ document.getElementById("bbGate").classList.remove("open"); if(!document.getElementById("ov").classList.contains("open")) document.body.style.overflow=""; }
+document.getElementById("bbForm").addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  var mk=document.getElementById("bbMarket").value;
+  var rec={ user_id:currentUser.id, email:currentUser.email,
+    markets: mk?[mk]:[], prop_type:document.getElementById("bbType").value,
+    max_price: parseInt((document.getElementById("bbMax").value||"").replace(/[^0-9]/g,""),10)||null,
+    min_beds: parseInt(document.getElementById("bbBeds").value,10)||null,
+    min_spread: parseInt((document.getElementById("bbSpread").value||"").replace(/[^0-9]/g,""),10)||null,
+    alerts:true, updated_at:new Date().toISOString() };
+  var err=document.getElementById("bbErr");
+  var btn=document.getElementById("bbSubmit"), lbl=btn.textContent; btn.disabled=true; btn.textContent="Saving…";
+  try{
+    await sbAuth.from("buy_boxes").upsert(rec, {onConflict:"user_id"});
+    myBuyBox=rec;
+    err.textContent="✓ Saved — we'll email you when a matching deal drops."; err.className="autherr show ok";
+    setTimeout(closeBuyBox, 1700);
+  }catch(e){ err.textContent="Couldn't save — please try again."; err.className="autherr show"; }
+  finally{ btn.disabled=false; btn.textContent=lbl; }
+});
+
 function queueLead(lead){
   try{ var q=JSON.parse(localStorage.getItem("spc_lead_queue")||"[]"); q.push(lead); localStorage.setItem("spc_lead_queue", JSON.stringify(q.slice(-25))); }catch(e){}
 }
@@ -1176,15 +1390,17 @@ flushLeadQueue();
   if(has){ openModal(did); }
 })();
 
+loadDealStats();   // public per-deal view counts for the urgency UI (works logged-out)
+
 // Restore a returning visitor's session (async) and keep auth state in sync.
 if(sbAuth){
   sbAuth.auth.getSession().then(function(res){
     var sess = res && res.data && res.data.session;
-    if(sess && sess.user){ currentUser=sess.user; unlocked=true; setWelcome(sess.user); render(); refreshOpenModal(); }
+    if(sess && sess.user){ currentUser=sess.user; unlocked=true; setWelcome(sess.user); loadEngagement(); render(); refreshOpenModal(); }
   }).catch(function(){});
   sbAuth.auth.onAuthStateChange(function(event, session){
-    if(session && session.user){ currentUser=session.user; unlocked=true; setWelcome(session.user); }
-    else { currentUser=null; unlocked=!AUTH_ON; resetWelcome(); }
+    if(session && session.user){ currentUser=session.user; unlocked=true; setWelcome(session.user); loadEngagement(); }
+    else { currentUser=null; unlocked=!AUTH_ON; savedSet=[]; myBuyBox=null; resetWelcome(); }
     render(); refreshOpenModal();
   });
 }
