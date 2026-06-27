@@ -175,7 +175,7 @@ a{color:var(--blue);text-decoration:none}
 .agent a{display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:1px solid var(--panel-bd);border-radius:9px;padding:11px;font-weight:700;color:var(--navy)}
 
 /* ---------- GATE ---------- */
-.gate{position:fixed;inset:0;z-index:1100;background:rgba(8,9,24,.66);display:none;align-items:center;justify-content:center;padding:20px}
+.gate{position:fixed;inset:0;z-index:1100;background:rgba(8,9,24,.66);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px}
 .gate.open{display:flex}
 .gatebox{width:100%;max-width:440px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
 .gatebox .gh{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:24px 26px 20px;position:relative}
@@ -192,6 +192,13 @@ a{color:var(--blue);text-decoration:none}
 .gform .sub{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;margin-top:4px}
 .gform .sub:hover{background:var(--blue-dark)}
 .gform .fine{font-size:11.5px;color:var(--muted);text-align:center;margin:2px 0 0;line-height:1.5}
+.authtabs{display:flex;gap:6px;margin:18px 26px 0;background:var(--panel);border:1px solid var(--panel-bd);border-radius:11px;padding:4px}
+.authtabs button{flex:1;border:0;background:none;font-family:inherit;font-size:14px;font-weight:800;color:var(--muted);padding:9px 8px;border-radius:8px;cursor:pointer}
+.authtabs button.on{background:var(--navy);color:#fff;box-shadow:0 1px 3px rgba(16,24,64,.18)}
+.fld.hide{display:none}
+.autherr{display:none;background:#fdecea;border:1px solid #f5c2bd;color:#9b1c14;font-size:13px;font-weight:700;border-radius:9px;padding:10px 12px;line-height:1.4}
+.autherr.show{display:block}
+.autherr.ok{background:#e9f7ef;border-color:#bfe6cd;color:#1f7a44}
 
 /* ---------- LIGHTBOX ---------- */
 .lb{position:fixed;inset:0;z-index:1200;background:rgba(8,9,24,.94);display:none;align-items:center;justify-content:center}
@@ -319,39 +326,49 @@ a{color:var(--blue);text-decoration:none}
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Property details"><button class="close" aria-label="Close" onclick="closeModal()">&times;</button><div id="modalInner"></div></div>
 </div>
 
-<!-- GATE -->
+<!-- GATE (sign up / log in) -->
 <div class="gate" id="gate" onclick="if(event.target===this)closeGate()">
   <div class="gatebox">
     <div class="gh">
       <button class="gx" aria-label="Close" onclick="closeGate()">&times;</button>
-      <h3 id="gateTitle">Unlock this deal</h3>
-      <p id="gateSub">Enter your info to reveal the full address, all photos &amp; the document packet — free.</p>
+      <h3 id="gateTitle">Create your free account</h3>
+      <p id="gateSub">Sign up to reveal the full address, all photos &amp; the document packet — free.</p>
+    </div>
+    <div class="authtabs" role="tablist">
+      <button type="button" id="tabSignup" class="on" role="tab" onclick="setGateMode('signup')">Create account</button>
+      <button type="button" id="tabLogin" role="tab" onclick="setGateMode('login')">Log in</button>
     </div>
     <form class="gform" id="gform" novalidate>
-      <div>
+      <div class="autherr" id="authErr" role="alert"></div>
+      <div class="fld" id="fldName">
         <label for="gName">Full Name <span class="req">*</span></label>
-        <input id="gName" name="name" placeholder="First &amp; last name" autocomplete="name" aria-required="true" aria-describedby="err-gName">
+        <input id="gName" name="name" placeholder="First &amp; last name" autocomplete="name" aria-describedby="err-gName">
         <div class="err" id="err-gName" data-for="gName" role="alert">Please enter your name.</div>
       </div>
-      <div>
+      <div class="fld">
         <label for="gEmail">Email <span class="req">*</span></label>
-        <input id="gEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" aria-required="true" aria-describedby="err-gEmail">
+        <input id="gEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" aria-describedby="err-gEmail">
         <div class="err" id="err-gEmail" data-for="gEmail" role="alert">Enter a valid email.</div>
       </div>
-      <div>
+      <div class="fld" id="fldPhone">
         <label for="gPhone">Mobile Phone <span class="req">*</span></label>
-        <input id="gPhone" name="phone" type="tel" placeholder="e.g. (817) 555-0123" autocomplete="tel" aria-required="true" aria-describedby="err-gPhone">
+        <input id="gPhone" name="phone" type="tel" placeholder="e.g. (817) 555-0123" autocomplete="tel" aria-describedby="err-gPhone">
         <div class="err" id="err-gPhone" data-for="gPhone" role="alert">Enter a valid 10-digit phone.</div>
       </div>
-      <div>
+      <div class="fld">
+        <label for="gPass">Password <span class="req">*</span></label>
+        <input id="gPass" name="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" aria-describedby="err-gPass">
+        <div class="err" id="err-gPass" data-for="gPass" role="alert">Password must be at least 6 characters.</div>
+      </div>
+      <div class="fld" id="fldType">
         <label for="gType">Buyer Type</label>
         <select id="gType" name="buyer_type">
           <option>Cash Buyer</option><option>Hard Money</option>
           <option>Wholesaler</option><option>Agent (representing buyer)</option><option>New Investor</option>
         </select>
       </div>
-      <button class="sub" type="submit">Unlock Deal Access</button>
-      <p class="fine">By submitting, you agree to receive <strong>calls &amp; texts</strong> from SPC Homes about this and similar off-market deals at the number provided (including automated messages); consent is not a condition of purchase, and message &amp; data rates may apply. Reply STOP to opt out. We never sell your info. <a href="https://www.spchomestx.com" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+      <button class="sub" type="submit" id="gSubmit">Create Account &amp; Unlock</button>
+      <p class="fine" id="gFine">By creating an account, you agree to receive <strong>calls &amp; texts</strong> from SPC Homes about this and similar off-market deals at the number provided (including automated messages); consent is not a condition of purchase, and message &amp; data rates may apply. Reply STOP to opt out. We never sell your info. <a href="https://www.spchomestx.com" target="_blank" rel="noopener">Privacy Policy</a>.</p>
     </form>
   </div>
 </div>
@@ -366,6 +383,7 @@ a{color:var(--blue);text-decoration:none}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============================================================
    CONFIG
@@ -374,6 +392,19 @@ a{color:var(--blue);text-decoration:none}
 // (Workflow -> trigger "Inbound Webhook" -> create/update contact, add tag, notify.)
 // Until set, the gate still unlocks so the page is fully usable.
 var GHL_LEAD_WEBHOOK = "";
+
+// ===== SUPABASE AUTH (real visitor accounts + view tracking) =====
+// Fill these in from your Supabase project: Settings -> API.
+//   SUPABASE_URL       = "Project URL"     (e.g. https://abcd1234.supabase.co)
+//   SUPABASE_ANON_KEY  = "anon public" key (safe to be public / embedded here)
+// Until both are set, the site falls back to open browsing (no login required),
+// so it never breaks if the keys are missing.
+var SUPABASE_URL = "https://hupwchdohuexbieyeybm.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_QjdxqzN0cp9H_QrqVV_UBQ_-8OrP-Nm";
+var sbAuth = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } })
+  : null;
+var AUTH_ON = !!sbAuth;   // when false, gate is bypassed (dev / not-configured)
 
 // ===== VISITOR TRACKING — logs every property view to your Google Sheet =====
 // Paste your Google Apps Script web-app /exec URL here (see TRACKING_SETUP.md).
@@ -475,8 +506,13 @@ var DEALS = [
 /* ============================================================
    STATE
    ============================================================ */
-var unlocked = false;
-try { unlocked = localStorage.getItem("spc_unlocked") === "1"; } catch(e){}
+// unlocked === "this visitor may see full address / all photos / packet".
+// With auth ON, that means a logged-in Supabase user. With auth OFF
+// (keys not set yet), the whole site stays open so nothing breaks.
+var unlocked = !AUTH_ON;
+var currentUser = null;     // Supabase user object once logged in
+var gateMode = "signup";    // "signup" | "login"
+var gateSignupTitle = "", gateSignupSub = "";   // context-specific copy for signup mode
 var pendingAction = null;   // {type, deal}
 var map, markers = {}, cardCarousel = {};
 
@@ -599,7 +635,7 @@ function openModal(id){
   var d = DEALS.find(function(x){return x.id===id;});
   if(!d) return;
   modalDeal = d;
-  bumpView(id); trackEvent("view", d);
+  bumpView(id); trackEvent("view", d); logPropertyView(d);
   document.getElementById("modalInner").innerHTML = modalHTML(d);
   document.getElementById("ov").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -710,7 +746,7 @@ function modalHTML(d){
 }
 
 /* ============================================================
-   GATE  (email + phone capture)
+   GATE  (sign up / log in via Supabase Auth)
    ============================================================ */
 function unlockOr(action, id, payload){
   if(unlocked){
@@ -720,13 +756,33 @@ function unlockOr(action, id, payload){
   }
   openGate(action, id);
 }
+
+function setGateMode(m){
+  gateMode = m;
+  var signup = (m==="signup");
+  document.getElementById("tabSignup").classList.toggle("on", signup);
+  document.getElementById("tabLogin").classList.toggle("on", !signup);
+  document.getElementById("fldName").classList.toggle("hide", !signup);
+  document.getElementById("fldPhone").classList.toggle("hide", !signup);
+  document.getElementById("fldType").classList.toggle("hide", !signup);
+  document.getElementById("gFine").style.display = signup ? "" : "none";
+  document.getElementById("gSubmit").textContent = signup ? "Create Account & Unlock" : "Log In";
+  document.getElementById("gPass").setAttribute("autocomplete", signup ? "new-password" : "current-password");
+  var t=document.getElementById("gateTitle"), s=document.getElementById("gateSub");
+  if(signup){ t.textContent=gateSignupTitle||"Create your free account"; s.textContent=gateSignupSub||"Sign up to reveal the full address, all photos & the document packet — free."; }
+  else { t.textContent="Welcome back"; s.textContent="Log in to your SPC Homes account."; }
+  clearAuthErr();
+}
+function clearAuthErr(){ var e=document.getElementById("authErr"); e.className="autherr"; e.textContent=""; }
+function setAuthErr(msg, ok){ var e=document.getElementById("authErr"); e.textContent=msg; e.className="autherr show"+(ok?" ok":""); }
+
 function openGate(action, id){
   pendingAction = {type:action, id:id||(modalDeal&&modalDeal.id)};
-  var t = document.getElementById("gateTitle"), s = document.getElementById("gateSub");
-  if(action==="offer"){ t.textContent="Make an offer"; s.textContent="Enter your info and an SPC agent will send full details and take your offer."; }
-  else if(action==="docs"){ t.textContent="Get the document packet"; s.textContent="Unlock comps, scope of work, title & access details — free."; }
-  else if(action==="general"){ t.textContent="Get early access to deals"; s.textContent="We send off-market DFW & Houston deals before they go public."; }
-  else { t.textContent="Unlock this deal"; s.textContent="Enter your info to reveal the full address, all photos & the document packet — free."; }
+  if(action==="offer"){ gateSignupTitle="Create an account to make an offer"; gateSignupSub="Sign up and an SPC agent will send full details and take your offer."; }
+  else if(action==="docs"){ gateSignupTitle="Unlock the document packet"; gateSignupSub="Create your free account for comps, scope of work, title & access details."; }
+  else if(action==="general"){ gateSignupTitle="Get early access to deals"; gateSignupSub="Create a free account — we send off-market DFW & Houston deals before they go public."; }
+  else { gateSignupTitle="Create your free account"; gateSignupSub="Sign up to reveal the full address, all photos & the document packet — free."; }
+  setGateMode("signup");
   document.getElementById("gate").classList.add("open");
   document.body.style.overflow="hidden";
   setTimeout(function(){ document.getElementById("gName").focus(); }, 60);
@@ -737,26 +793,77 @@ function closeGate(){
 }
 function showErr(id, on){ var e=document.querySelector('.err[data-for="'+id+'"]'); if(e) e.style.display=on?"block":"none"; }
 
-document.getElementById("gform").addEventListener("submit", function(ev){
+function friendlyAuthError(err){
+  var m=(err&&err.message)||"Something went wrong — please try again.";
+  if(/already registered|already exists|User already/i.test(m)) return "That email already has an account — switch to Log in.";
+  if(/Invalid login credentials/i.test(m)) return "Email or password is incorrect.";
+  if(/Email not confirmed/i.test(m)) return "Please confirm your email first (check your inbox), then log in.";
+  if(/Password should be at least|at least 6/i.test(m)) return "Password must be at least 6 characters.";
+  if(/rate limit|too many/i.test(m)) return "Too many attempts — wait a minute and try again.";
+  return m;
+}
+
+document.getElementById("gform").addEventListener("submit", async function(ev){
   ev.preventDefault();
+  clearAuthErr();
+  var signup=(gateMode==="signup");
   var name=document.getElementById("gName").value.trim();
-  var email=document.getElementById("gEmail").value.trim();
-  var phoneRaw=document.getElementById("gPhone").value.trim();
-  var phone=phoneRaw.replace(/[^0-9]/g,"");
+  var email=document.getElementById("gEmail").value.trim().toLowerCase();
+  var phone=document.getElementById("gPhone").value.trim().replace(/[^0-9]/g,"");
+  var pass=document.getElementById("gPass").value;
   var ok=true;
-  if(name.length<2){ showErr("gName",1); ok=false; } else showErr("gName",0);
+  if(signup && name.length<2){ showErr("gName",1); ok=false; } else showErr("gName",0);
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr("gEmail",1); ok=false; } else showErr("gEmail",0);
-  if(phone.length<10){ showErr("gPhone",1); ok=false; } else showErr("gPhone",0);
+  if(signup && phone.length<10){ showErr("gPhone",1); ok=false; } else showErr("gPhone",0);
+  if(pass.length<6){ showErr("gPass",1); ok=false; } else showErr("gPass",0);
   if(!ok) return;
 
-  var lead={ name:name, email:email, phone:phone, buyer_type:document.getElementById("gType").value,
-             deal:(pendingAction&&pendingAction.id)||"", views:getViews(), vid:VID, source:"homes.spchomestx.net", ts:new Date().toISOString() };
-  sendLead(lead);
+  if(!sbAuth){ setAuthErr("Accounts aren't switched on yet — call or text 817-697-2534 for access."); return; }
 
-  unlocked=true;
-  try{ localStorage.setItem("spc_unlocked","1"); localStorage.setItem("spc_lead",JSON.stringify(lead)); }catch(e){}
-  trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null, {buyer_type:lead.buyer_type, viewsAll:getViews()});
-  document.getElementById("welcomeLine").textContent="Welcome, "+name.split(" ")[0]+" · full access unlocked";
+  var btn=document.getElementById("gSubmit"); var label=btn.textContent;
+  btn.disabled=true; btn.textContent="Please wait…";
+  try{
+    if(signup){
+      var su=await sbAuth.auth.signUp({ email:email, password:pass,
+        options:{ data:{ full_name:name, phone:phone, buyer_type:document.getElementById("gType").value } } });
+      if(su.error){ setAuthErr(friendlyAuthError(su.error)); if(/already/i.test(su.error.message||"")) setGateMode("login"); return; }
+      if(!su.data.session){ setAuthErr("Account created! Check your email to confirm, then log in.", true); setGateMode("login"); return; }
+      onAuthSuccess(su.data.user, {name:name, phone:phone, buyer_type:document.getElementById("gType").value});
+    } else {
+      var li=await sbAuth.auth.signInWithPassword({ email:email, password:pass });
+      if(li.error){ setAuthErr(friendlyAuthError(li.error)); return; }
+      onAuthSuccess(li.data.user, null);
+    }
+  } catch(e){ setAuthErr("Network error — please try again."); }
+  finally{ btn.disabled=false; btn.textContent=label; }
+});
+
+function userName(u){ return (u && u.user_metadata && (u.user_metadata.full_name||u.user_metadata.name)) || ""; }
+function setWelcome(u){
+  var first=(userName(u)||(u&&u.email)||"").split(" ")[0].split("@")[0];
+  document.getElementById("welcomeLine").innerHTML =
+    "Welcome"+(first?(", "+esc(first)):"")+" · full access · "+
+    '<a href="#" onclick="doLogout();return false;" style="color:var(--blue);font-weight:700">Log out</a>';
+}
+function resetWelcome(){ document.getElementById("welcomeLine").textContent = "Off-market wholesale · DFW & Houston"; }
+function refreshOpenModal(){
+  if(modalDeal && document.getElementById("ov").classList.contains("open")){
+    document.getElementById("modalInner").innerHTML = modalHTML(modalDeal);
+  }
+}
+
+function onAuthSuccess(user, leadInfo){
+  currentUser=user; unlocked=true;
+  var nm=(leadInfo&&leadInfo.name)||userName(user)||"";
+  var ph=(leadInfo&&leadInfo.phone)||(user.user_metadata&&user.user_metadata.phone)||"";
+  var bt=(leadInfo&&leadInfo.buyer_type)||(user.user_metadata&&user.user_metadata.buyer_type)||"";
+  var lead={ name:nm, email:user.email, phone:ph, buyer_type:bt,
+             deal:(pendingAction&&pendingAction.id)||"", views:getViews(), vid:VID,
+             source:"homes.spchomestx.net", user_id:user.id, ts:new Date().toISOString() };
+  sendLead(lead);   // optional instant push to GHL webhook if configured
+  trackEvent("unlock", DEALS.find(function(x){return x.id===lead.deal;})||null, {buyer_type:bt, viewsAll:getViews()});
+  backfillAnonViews();   // record the homes they browsed before signing up
+  setWelcome(user);
   closeGate();
   render();
   if(pendingAction){
@@ -764,7 +871,37 @@ document.getElementById("gform").addEventListener("submit", function(ev){
     if(id && (act==="address"||act==="photos"||act==="docs")) openModal(id);
     if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
   }
-});
+}
+
+async function doLogout(){
+  try{ if(sbAuth) await sbAuth.auth.signOut(); }catch(e){}
+  currentUser=null; unlocked=!AUTH_ON;
+  resetWelcome();
+  if(document.getElementById("ov").classList.contains("open")) closeModal();
+  render();
+}
+
+/* ----- per-property view logging into Supabase ----- */
+function viewAddress(d){ return d.street+", "+d.city+", "+d.state+" "+d.zip; }
+async function logPropertyView(d){
+  if(!sbAuth || !currentUser || !d) return;
+  try{
+    await sbAuth.from("property_views").insert({
+      user_id: currentUser.id, email: currentUser.email,
+      deal_id: d.id, address: viewAddress(d), price: d.price||null
+    });
+  }catch(e){}
+}
+async function backfillAnonViews(){
+  if(!sbAuth || !currentUser) return;
+  var v=getViews(); var ids=Object.keys(v); if(!ids.length) return;
+  var rows=ids.map(function(id){
+    var d=DEALS.find(function(x){return x.id===id;});
+    return { user_id:currentUser.id, email:currentUser.email, deal_id:id,
+             address:d?viewAddress(d):id, price:d?(d.price||null):null };
+  });
+  try{ await sbAuth.from("property_views").insert(rows); }catch(e){}
+}
 
 function queueLead(lead){
   try{ var q=JSON.parse(localStorage.getItem("spc_lead_queue")||"[]"); q.push(lead); localStorage.setItem("spc_lead_queue", JSON.stringify(q.slice(-25))); }catch(e){}
@@ -823,9 +960,6 @@ document.addEventListener("keydown",function(e){
 /* ============================================================
    INIT
    ============================================================ */
-if(unlocked){
-  try{ var l=JSON.parse(localStorage.getItem("spc_lead")||"{}"); if(l.name) document.getElementById("welcomeLine").textContent="Welcome back, "+l.name.split(" ")[0]+" · full access unlocked"; }catch(e){}
-}
 flushLeadQueue();
 (function(){
   var did = new URLSearchParams(location.search).get("deal") || (location.hash||"").replace(/^#/,"");
@@ -837,6 +971,19 @@ flushLeadQueue();
   render();
   if(has){ openModal(did); }
 })();
+
+// Restore a returning visitor's session (async) and keep auth state in sync.
+if(sbAuth){
+  sbAuth.auth.getSession().then(function(res){
+    var sess = res && res.data && res.data.session;
+    if(sess && sess.user){ currentUser=sess.user; unlocked=true; setWelcome(sess.user); render(); refreshOpenModal(); }
+  }).catch(function(){});
+  sbAuth.auth.onAuthStateChange(function(event, session){
+    if(session && session.user){ currentUser=session.user; unlocked=true; setWelcome(session.user); }
+    else { currentUser=null; unlocked=!AUTH_ON; resetWelcome(); }
+    render(); refreshOpenModal();
+  });
+}
 </script>
 </body>
 </html>
