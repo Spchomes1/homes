@@ -366,7 +366,7 @@ a{color:var(--blue);text-decoration:none}
       <div class="fld"><label for="ofNote">Note (optional)</label>
         <textarea id="ofNote" rows="2" placeholder="Anything we should know?"></textarea></div>
       <button class="sub" type="submit" id="ofSubmit">Send Offer</button>
-      <p class="fine">An SPC agent reviews every offer. A property isn't under contract until a signed contract &amp; deposit are received.</p>
+      <p class="fine">This is a <strong>non-binding offer / expression of interest</strong> on an <strong>assignable contract</strong>, not a direct property purchase. An SPC agent will follow up to confirm terms; nothing is under contract until a signed agreement &amp; deposit are received. By submitting you agree to receive <strong>calls &amp; texts</strong> from SPC Homes at the number provided. Reply STOP to opt out.</p>
     </form>
   </div>
 </div>
@@ -438,72 +438,6 @@ a{color:var(--blue);text-decoration:none}
       <button class="sub" type="submit" id="gSubmit">Create Account &amp; Unlock</button>
       <p class="fine" id="gFine">By creating an account, you agree to receive <strong>calls &amp; texts</strong> from SPC Homes about this and similar off-market deals at the number provided (including automated messages); consent is not a condition of purchase, and message &amp; data rates may apply. Reply STOP to opt out. We never sell your info. <a href="https://www.spchomestx.com" target="_blank" rel="noopener">Privacy Policy</a>.</p>
     </form>
-  </div>
-</div>
-
-<!-- MAKE AN OFFER -->
-<div class="gate" id="offerGate" onclick="if(event.target===this)closeOffer()">
-  <div class="gatebox">
-    <div class="gh">
-      <button class="gx" aria-label="Close" onclick="closeOffer()">&times;</button>
-      <h3 id="offerTitle">Make an Offer</h3>
-      <p id="offerSub">Submit your offer and an SPC agent will follow up to confirm terms.</p>
-    </div>
-    <form class="gform" id="offerForm" novalidate>
-      <div class="autherr" id="offerErr" role="alert"></div>
-      <div id="offerProp" style="background:#f4f7fc;border:1px solid var(--panel-bd);border-radius:10px;padding:11px 13px;font-size:13.5px;color:var(--navy);font-weight:600;line-height:1.5"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
-        <div class="fld">
-          <label for="oAmount">Your Offer (USD) <span class="req">*</span></label>
-          <input id="oAmount" inputmode="numeric" placeholder="$0" aria-describedby="err-oAmount">
-          <div class="err" id="err-oAmount" data-for="oAmount" role="alert">Enter your offer amount.</div>
-        </div>
-        <div class="fld">
-          <label for="oEmd">Earnest Money</label>
-          <input id="oEmd" inputmode="numeric" placeholder="e.g. $2,500">
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
-        <div class="fld">
-          <label for="oFinancing">Financing</label>
-          <select id="oFinancing"><option>Cash</option><option>Hard Money</option><option>Private Lender</option><option>Other</option></select>
-        </div>
-        <div class="fld">
-          <label for="oClose">Close Timeline</label>
-          <select id="oClose"><option>ASAP (7 days)</option><option>14 days</option><option>21 days</option><option>30 days</option><option>Flexible</option></select>
-        </div>
-      </div>
-      <div class="fld">
-        <label for="oName">Full Name <span class="req">*</span></label>
-        <input id="oName" autocomplete="name" placeholder="First &amp; last name" aria-describedby="err-oName">
-        <div class="err" id="err-oName" data-for="oName" role="alert">Please enter your name.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
-        <div class="fld">
-          <label for="oEmail">Email <span class="req">*</span></label>
-          <input id="oEmail" type="email" autocomplete="email" placeholder="you@email.com" aria-describedby="err-oEmail">
-          <div class="err" id="err-oEmail" data-for="oEmail" role="alert">Enter a valid email.</div>
-        </div>
-        <div class="fld">
-          <label for="oPhone">Mobile Phone <span class="req">*</span></label>
-          <input id="oPhone" type="tel" autocomplete="tel" placeholder="(817) 555-0123" aria-describedby="err-oPhone">
-          <div class="err" id="err-oPhone" data-for="oPhone" role="alert">Enter a valid 10-digit phone.</div>
-        </div>
-      </div>
-      <div class="fld">
-        <label for="oNotes">Notes / Conditions</label>
-        <textarea id="oNotes" rows="3" placeholder="Inspection period, proof of funds, questions…" style="width:100%;padding:13px 14px;border:1px solid var(--panel-bd);border-radius:10px;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;resize:vertical"></textarea>
-      </div>
-      <button class="sub" type="submit" id="oSubmit">Submit Offer</button>
-      <p class="fine">This is a non-binding offer / expression of interest on an <strong>assignable contract</strong>, not a direct property purchase. An SPC agent will follow up to confirm terms; nothing is under contract until a signed agreement &amp; deposit are received. By submitting you agree to receive <strong>calls &amp; texts</strong> from SPC Homes at the number provided. Reply STOP to opt out.</p>
-    </form>
-    <div id="offerDone" style="display:none;padding:30px 26px 34px;text-align:center">
-      <div style="font-size:46px;line-height:1">✅</div>
-      <h3 style="margin:12px 0 6px;font-size:21px;color:var(--navy)">Offer submitted</h3>
-      <p id="offerDoneSub" style="margin:0 0 18px;color:var(--muted);font-size:14.5px;line-height:1.5">An SPC agent will review your offer and follow up shortly.</p>
-      <a class="sub" href="tel:+18176972534" style="display:block;text-decoration:none;text-align:center;margin-bottom:10px">&#9742; Call an agent now — 817-697-2534</a>
-      <button type="button" onclick="closeOffer()" style="width:100%;padding:13px;border:1px solid var(--panel-bd);background:#fff;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;color:var(--navy)">Done</button>
-    </div>
   </div>
 </div>
 
@@ -884,13 +818,9 @@ function modalHTML(d){
       '<div class="row"><span class="k">ARV</span><span class="v">'+(d.arv?money(d.arv):esc(d.arvText))+'</span></div>'+
       (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':'')+
     '</div><div class="cta">'+
-<<<<<<< Updated upstream
-      '<button class="b1" onclick="openOffer(\''+d.id+'\')">Make an Offer</button>'+
-=======
       (dealStatus(d)==="sold"
         ? '<button class="b1" disabled style="opacity:.55;cursor:default">✓ Sold</button>'
         : '<button class="b1" onclick="makeOffer(\''+d.id+'\')">Make an Offer</button>')+
->>>>>>> Stashed changes
       '<button class="b2" onclick="'+(freeView?"openGate('general')":"unlockOr('address','"+d.id+"')")+'">'+(unlocked?'View Full Address':(freeView?'✓ Create Free Account':'Unlock Full Details'))+'</button>'+
       '<button class="b3" onclick="toggleSave(\''+d.id+'\')">'+(isSaved(d.id)?'❤ Saved':'🤍 Save Deal')+'</button>'+
       '<a class="b3" href="tel:+18176972534" style="text-decoration:none">&#9742; Call / Text Agent</a>'+
@@ -927,7 +857,7 @@ function modalHTML(d){
 function unlockOr(action, id, payload){
   if(showFull(id)){
     if(action==="photos"){ LB.open(payload||0); }
-    else if(action==="offer"){ openOffer(id); }
+    else if(action==="offer"){ window.location.href = "tel:+18176972534"; }
     return;
   }
   openGate(action, id);
@@ -1050,14 +980,10 @@ function onAuthSuccess(user, leadInfo){
   if(pendingAction){
     var act=pendingAction.type, id=pendingAction.id;
     if(id && (act==="address"||act==="photos"||act==="docs"||act==="limit")) openModal(id);
-<<<<<<< Updated upstream
-    if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ openOffer(id); }, 300); }
-=======
     else if(act==="offer"){ if(id) openModal(id); setTimeout(function(){ window.location.href="tel:+18176972534"; }, 300); }
     else if(act==="save" && id){ toggleSave(id); }
     else if(act==="offer2" && id){ openModal(id); makeOffer(id); }
     else if(act==="alerts" || act==="buybox"){ openBuyBox(); }
->>>>>>> Stashed changes
   }
 }
 
@@ -1068,112 +994,6 @@ async function doLogout(){
   if(document.getElementById("ov").classList.contains("open")) closeModal();
   render();
 }
-
-/* ============================================================
-   MAKE AN OFFER  (offer form -> GHL lead; never auto-dials)
-   ============================================================ */
-var offerDeal = null;
-
-function prefillContact(){
-  var nm="", em="", ph="";
-  if(currentUser){
-    nm = userName(currentUser) || "";
-    em = currentUser.email || "";
-    ph = (currentUser.user_metadata && currentUser.user_metadata.phone) || "";
-  }
-  if(!nm || !em || !ph){
-    try{ var l=JSON.parse(localStorage.getItem("spc_lead")||"{}");
-      nm=nm||l.name||""; em=em||l.email||""; ph=ph||l.phone||""; }catch(e){}
-  }
-  return {name:nm, email:em, phone:ph};
-}
-function fmtMoneyInput(v){
-  var n=String(v).replace(/[^0-9.]/g,"");
-  if(!n) return "";
-  var num=parseFloat(n); if(isNaN(num)) return "";
-  return "$"+Number(Math.round(num)).toLocaleString("en-US");
-}
-
-function openOffer(id){
-  offerDeal = DEALS.find(function(x){ return x.id===id; }) || modalDeal || null;
-  document.getElementById("offerForm").style.display="";
-  document.getElementById("offerDone").style.display="none";
-  document.getElementById("offerErr").className="autherr";
-  ["oAmount","oEmd","oName","oEmail","oPhone","oNotes"].forEach(function(f){ var el=document.getElementById(f); if(el) el.value=""; });
-  ["oAmount","oName","oEmail","oPhone"].forEach(function(f){ showErr(f,0); });
-  document.getElementById("oFinancing").selectedIndex=0;
-  document.getElementById("oClose").selectedIndex=0;
-  if(offerDeal){
-    var loc = showFull(offerDeal.id)
-      ? (offerDeal.street+", "+offerDeal.city+", "+offerDeal.state+" "+offerDeal.zip)
-      : (offerDeal.city+", "+offerDeal.state+" "+offerDeal.zip+" · "+offerDeal.county+" County");
-    document.getElementById("offerProp").innerHTML =
-      "<b>"+esc(loc)+"</b><br>Cash price "+money(offerDeal.price)+(offerDeal.arv?(" · ARV "+money(offerDeal.arv)):"");
-    document.getElementById("oAmount").placeholder = money(offerDeal.price);
-    document.getElementById("offerSub").textContent = "Submit your offer on "+offerDeal.name+" — an SPC agent will follow up to confirm terms.";
-  } else {
-    document.getElementById("offerProp").innerHTML = "";
-  }
-  var pc=prefillContact();
-  document.getElementById("oName").value=pc.name;
-  document.getElementById("oEmail").value=pc.email;
-  document.getElementById("oPhone").value=pc.phone;
-  document.getElementById("offerGate").classList.add("open");
-  document.body.style.overflow="hidden";
-  trackEvent("offer_open", offerDeal);
-  setTimeout(function(){ document.getElementById("oAmount").focus(); }, 60);
-}
-function closeOffer(){
-  document.getElementById("offerGate").classList.remove("open");
-  if(!document.getElementById("ov").classList.contains("open")) document.body.style.overflow="";
-}
-
-document.getElementById("offerForm").addEventListener("submit", function(ev){
-  ev.preventDefault();
-  document.getElementById("offerErr").className="autherr";
-  var amountRaw=document.getElementById("oAmount").value.replace(/[^0-9.]/g,"");
-  var amount=parseFloat(amountRaw);
-  var name=document.getElementById("oName").value.trim();
-  var email=document.getElementById("oEmail").value.trim().toLowerCase();
-  var phone=document.getElementById("oPhone").value.trim().replace(/[^0-9]/g,"");
-  var ok=true;
-  if(!amountRaw || isNaN(amount) || amount<1000){ showErr("oAmount",1); ok=false; } else showErr("oAmount",0);
-  if(name.length<2){ showErr("oName",1); ok=false; } else showErr("oName",0);
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr("oEmail",1); ok=false; } else showErr("oEmail",0);
-  if(phone.length<10){ showErr("oPhone",1); ok=false; } else showErr("oPhone",0);
-  if(!ok) return;
-
-  var d=offerDeal;
-  var offer={
-    intent:"offer",
-    name:name, first_name:name.split(" ")[0], last_name:name.split(" ").slice(1).join(" "),
-    email:email, phone:phone,
-    offer_amount:amount, offer_amount_text:money(amount),
-    offer_emd:document.getElementById("oEmd").value.trim(),
-    offer_financing:document.getElementById("oFinancing").value,
-    offer_close:document.getElementById("oClose").value,
-    offer_notes:document.getElementById("oNotes").value.trim(),
-    deal:d?d.id:"", property_id:d?d.id:"", property_name:d?d.name:"",
-    property:d?(d.street+", "+d.city+", "+d.state+" "+d.zip):"",
-    property_price:d?money(d.price):"", property_arv:d?(d.arv?money(d.arv):d.arvText):"",
-    property_market:d?d.market:"", property_county:d?d.county:"",
-    property_url:d?(location.origin+location.pathname+"?deal="+d.id):location.href,
-    user_id:currentUser?currentUser.id:"", views:getViews(), vid:VID,
-    source:"homes.spchomestx.net", ts:new Date().toISOString()
-  };
-  var btn=document.getElementById("oSubmit"); var label=btn.textContent;
-  btn.disabled=true; btn.textContent="Submitting…";
-  sendLead(offer);
-  try{ localStorage.setItem("spc_lead", JSON.stringify({name:name,email:email,phone:phone,buyer_type:offer.offer_financing})); }catch(e){}
-  trackEvent("offer_submit", d, {offer_amount:amount, offer_financing:offer.offer_financing, offer_close:offer.offer_close});
-  document.getElementById("offerForm").style.display="none";
-  document.getElementById("offerDoneSub").textContent =
-    "We received your "+money(amount)+" offer on "+(d?d.name:"this property")+". An SPC agent will review and follow up shortly.";
-  document.getElementById("offerDone").style.display="block";
-  btn.disabled=false; btn.textContent=label;
-});
-document.getElementById("oAmount").addEventListener("blur", function(){ this.value=fmtMoneyInput(this.value); });
-document.getElementById("oEmd").addEventListener("blur", function(){ if(this.value.trim()) this.value=fmtMoneyInput(this.value); });
 
 /* ----- per-property view logging into Supabase ----- */
 function viewAddress(d){ return d.street+", "+d.city+", "+d.state+" "+d.zip; }
@@ -1366,8 +1186,6 @@ document.addEventListener("keydown",function(e){
     if(e.key==="Escape") LB.close();
     if(e.key==="ArrowRight") LB.step(1);
     if(e.key==="ArrowLeft") LB.step(-1);
-  } else if(document.getElementById("offerGate").classList.contains("open")){
-    if(e.key==="Escape") closeOffer();
   } else if(document.getElementById("gate").classList.contains("open")){
     if(e.key==="Escape") closeGate();
   } else if(document.getElementById("ov").classList.contains("open")){
