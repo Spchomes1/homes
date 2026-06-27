@@ -112,10 +112,10 @@ a{color:var(--blue);text-decoration:none}
 .ov.open{display:flex}
 .modal{background:#fff;width:100%;max-width:980px;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden;position:relative}
 .modal .close{position:absolute;top:14px;right:16px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.95);font-size:22px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);line-height:1}
-.mgal{display:grid;gap:6px;background:#1d2030;max-height:430px}
+.mgal{display:grid;gap:6px;background:#1d2030;max-height:430px;overflow:hidden}
 .mgal.mosaic{grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr}
 .mgal.two{grid-template-columns:1fr 1fr;max-height:400px}
-.mgal.one{grid-template-columns:1fr;max-height:420px}
+.mgal.one{grid-template-columns:1fr;height:420px}
 .mgal .big{grid-row:span 2;grid-column:1}
 .mgal figure.locked img{filter:blur(16px) brightness(.85);transform:scale(1.08)}
 .mgal figure{margin:0;position:relative;overflow:hidden;cursor:pointer}
@@ -161,7 +161,7 @@ a{color:var(--blue);text-decoration:none}
 
 /* ---------- ASIDE (sticky deal card) ---------- */
 .maside{align-self:start;position:sticky;top:14px}
-.dealcard{border:1px solid var(--panel-bd);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.dealcard{background:#fff;border:1px solid var(--panel-bd);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
 .dealcard .top{padding:18px 18px 16px}
 .dealcard .row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:15px}
 .dealcard .row+.row{border-top:1px solid #eef1f6}
@@ -568,7 +568,7 @@ function cardHTML(d){
   } else {
     photoArea = '<div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC"><span>Photos available on request</span></div>';
   }
-  var addr = showFull(d.id)
+  var addr = unlocked
     ? esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)
     : esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' <span class="lock">🔒 address</span>';
   var stats = d.type==="land"
@@ -707,10 +707,10 @@ function modalHTML(d){
     gal = '<div class="mgal one"><div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC Homes"><span style="font-weight:700">Photos available on request — contact your SPC agent</span></div></div>';
   }
 
-  var addrLine = full
+  var addrLine = unlocked
     ? '<div class="maddr">📍 '+esc(d.street)+", "+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+'</div>'
     : '<div class="maddr">📍 '+esc(d.city)+", "+esc(d.state)+" "+esc(d.zip)+' · '+esc(d.county)+' County'+
-      ' <button class="btn-unlock" onclick="openGate(\'address\')">🔓 View full address</button></div>';
+      ' <button class="btn-unlock" onclick="openGate(\'address\')">🔓 '+(freeView?'Log in / sign up to see address':'View full address')+'</button></div>';
 
   var stats = d.type==="land"
     ? '<span class="chip">Land / Lot</span><span class="chip">'+esc(d.lot)+'</span><span class="chip">'+esc(d.county)+' County</span>'
@@ -735,7 +735,7 @@ function modalHTML(d){
     condBlock = '<h3 class="h3">Property Condition</h3><table class="dl">'+rows+'</table>';
   }
 
-  var docs = full
+  var docs = unlocked
     ? '<div class="docs"><div class="ic">📄</div><div class="t"><b>Document Packet</b><p>Comps, scope of work, title &amp; access details.</p></div><button class="b3" style="flex:none;padding:10px 16px" onclick="window.location.href=\'tel:+18176972534\'">📄 Get the Packet</button></div>'
     : '<div class="docs"><div class="ic">🔒</div><div class="t"><b>Document Packet — locked</b><p>Unlock to view comps, scope of work &amp; access details.</p></div><button class="b1" style="flex:none;padding:10px 16px" onclick="openGate(\'docs\')">Unlock</button></div>';
 
