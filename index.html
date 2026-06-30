@@ -93,12 +93,18 @@ a{color:var(--blue);text-decoration:none}
 .badge{position:absolute;top:10px;left:10px;background:var(--good);color:#fff;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .badge.land{background:var(--warn)}
 .tag{position:absolute;top:10px;right:10px;background:rgba(15,17,48,.82);color:#fff;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px}
-.arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;opacity:0;transition:opacity .15s}
+.arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;opacity:0;transition:opacity .15s;pointer-events:none}
 .cphoto:hover .arrows{opacity:1}
-.arrows button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#1d2030;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);line-height:1}
+.arrows button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#1d2030;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);line-height:1;pointer-events:auto}
 .dots{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:4px;justify-content:center}
 .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
 .dots i.on{background:#fff}
+.dots i.lk{background:#ffcf66}
+.cphoto .clock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(15,17,48,.62);backdrop-filter:blur(3px);color:#fff;text-align:center;padding:14px;cursor:pointer}
+.cphoto .clock.on{display:flex}
+.cphoto .clock svg{width:30px;height:30px;opacity:.95}
+.cphoto .clock b{font-size:13.5px;font-weight:800;line-height:1.2}
+.cphoto .clock span{font-size:11.5px;font-weight:700;color:#d7defa}
 .cbody{padding:13px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
 .cprice{font-size:23px;font-weight:800;color:var(--navy);line-height:1}
 .cprice .arv{font-size:13px;font-weight:700;color:var(--muted);margin-left:7px}
@@ -620,11 +626,23 @@ function cardHTML(d){
   var hasPhotos = d.photos && d.photos.length>0;
   var photoArea;
   if(hasPhotos){
+    var full = showFull(d.id);
+    var locked = !full && d.photos.length>3;      // gate the slider after the first 3 photos
+    var shown = locked ? 3 : d.photos.length;      // real photos in the carousel
+    var slides = shown + (locked?1:0);             // +1 "unlock" slide when gated
+    var dots = "";
+    for(var k=0;k<slides;k++){ dots += '<i class="'+(k===0?'on':'')+(locked&&k===shown?' lk':'')+'"></i>'; }
+    var lockSlide = locked
+      ? '<div class="clock" id="clock-'+d.id+'" role="button" tabindex="0" aria-label="Unlock to see all '+d.photos.length+' photos — free" onclick="event.stopPropagation();openGate(\'photos\')">'+
+        '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm3 8H9V6a3 3 0 0 1 6 0v3z"/></svg>'+
+        '<b>+'+(d.photos.length-3)+' more photos</b><span>Unlock free to view all</span></div>'
+      : '';
     photoArea =
       '<img id="cimg-'+d.id+'" src="'+photoUrl(d,0,600,400)+'" alt="'+esc(d.name)+'" loading="lazy">' +
-      (d.photos.length>1 ?
+      lockSlide +
+      (slides>1 ?
         '<div class="arrows"><button type="button" aria-label="Previous photo" onclick="cstep(event,\''+d.id+'\',-1)">&#8249;</button><button type="button" aria-label="Next photo" onclick="cstep(event,\''+d.id+'\',1)">&#8250;</button></div>'+
-        '<div class="dots" id="cdots-'+d.id+'">'+d.photos.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>'
+        '<div class="dots" id="cdots-'+d.id+'">'+dots+'</div>'
         : '');
   } else {
     photoArea = '<div class="ph-ph"><img src="https://files.constantcontact.com/bdbb41d4901/8eef1b02-410d-4eb7-8a89-15758fd0375a.jpg" alt="SPC"><span>Photos available on request</span></div>';
@@ -663,12 +681,19 @@ function render(){
 function cstep(ev, id, dir){
   ev.stopPropagation();
   var d = DEALS.find(function(x){return x.id===id;});
-  if(!d.photos || d.photos.length<2) return;
-  var i = (cardCarousel[id] + dir + d.photos.length) % d.photos.length;
+  if(!d.photos) return;
+  var locked = !showFull(d.id) && d.photos.length>3;
+  var shown = locked ? 3 : d.photos.length;
+  var slides = shown + (locked?1:0);
+  if(slides<2) return;
+  var i = (cardCarousel[id] + dir + slides) % slides;
   cardCarousel[id] = i;
-  document.getElementById("cimg-"+id).src = photoUrl(d, i, 600, 400);
+  var onLock = locked && i===shown;             // the gated "unlock" slide after photo 3
+  var lockEl = document.getElementById("clock-"+id);
+  if(lockEl) lockEl.className = "clock"+(onLock?" on":"");
+  if(!onLock) document.getElementById("cimg-"+id).src = photoUrl(d, i, 600, 400);
   var dots = document.querySelectorAll("#cdots-"+id+" i");
-  dots.forEach(function(el,k){ el.className = k===i?"on":""; });
+  dots.forEach(function(el,k){ el.className = (k===i?"on":"")+(locked&&k===shown?" lk":""); });
 }
 
 /* ============================================================
