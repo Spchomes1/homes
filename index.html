@@ -464,6 +464,9 @@ a{color:var(--blue);text-decoration:none}
    ============================================================ */
 // Paste your GHL inbound-webhook URL here to capture leads into GHL.
 // (Workflow -> trigger "Inbound Webhook" -> create/update contact, add tag, notify.)
+// Every lead sent here is a BUYER and is stamped lead_type:"buyer" (see sendLead).
+// Route on that field in GHL so these go to the Buyer Pipeline ONLY — never mix
+// them with seller / tax-delinquent contacts (which come from CSV/cold outreach).
 // Until set, the gate still unlocks so the page is fully usable.
 var GHL_LEAD_WEBHOOK = "";
 
@@ -1157,9 +1160,15 @@ function queueLead(lead){
   try{ var q=JSON.parse(localStorage.getItem("spc_lead_queue")||"[]"); q.push(lead); localStorage.setItem("spc_lead_queue", JSON.stringify(q.slice(-25))); }catch(e){}
 }
 function sendLead(lead){
-  if(!GHL_LEAD_WEBHOOK){ console.log("[SPC] lead captured (no webhook set):", lead); return; }
+  // Every lead this site captures is a BUYER — someone who signed up or made an
+  // offer on a listing. Stamp lead_type:"buyer" so the GHL inbound-webhook
+  // workflow can route it into the Buyer Pipeline and never mistake it for a
+  // seller / tax-delinquent contact. This feed is buyers-only by design.
+  var payload={}; for(var k in lead){ payload[k]=lead[k]; }
+  payload.lead_type="buyer";
+  if(!GHL_LEAD_WEBHOOK){ console.log("[SPC] buyer lead captured (no webhook set):", payload); return; }
   try{
-    fetch(GHL_LEAD_WEBHOOK, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(lead), keepalive:true})
+    fetch(GHL_LEAD_WEBHOOK, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload), keepalive:true})
       .then(function(r){ if(!r.ok) queueLead(lead); })
       .catch(function(){ queueLead(lead); });
   }catch(e){ queueLead(lead); }
