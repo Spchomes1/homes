@@ -993,7 +993,8 @@ document.getElementById("gform").addEventListener("submit", async function(ev){
   try{
     if(signup){
       var su=await sbAuth.auth.signUp({ email:email, password:pass,
-        options:{ data:{ full_name:name, phone:phone, buyer_type:document.getElementById("gType").value } } });
+        options:{ emailRedirectTo: window.location.origin + window.location.pathname,
+          data:{ full_name:name, phone:phone, buyer_type:document.getElementById("gType").value } } });
       if(su.error){ setAuthErr(friendlyAuthError(su.error)); if(/already/i.test(su.error.message||"")) setGateMode("login"); return; }
       if(!su.data.session){ setAuthErr("Account created! Check your email to confirm, then log in.", true); setGateMode("login"); return; }
       onAuthSuccess(su.data.user, {name:name, phone:phone, buyer_type:document.getElementById("gType").value});
