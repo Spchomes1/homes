@@ -244,8 +244,9 @@ a{color:var(--blue);text-decoration:none}
 
 /* custom map pin */
 .pinlab{display:inline-block;position:relative;background:var(--pin);color:#fff;font-weight:800;font-size:12.5px;padding:5px 9px;border-radius:7px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.35);border:1.5px solid #fff;transform:translate(-50%,-115%);cursor:pointer}
-.pinlab.sel{background:var(--navy)}
+.pinlab.pinsel{background:var(--navy)}
 .leaflet-marker-icon .pinlab::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pin)}
+.leaflet-marker-icon .pinlab.pinsel::after{border-top-color:var(--navy)}
 
 /* ---------- RESPONSIVE ---------- */
 @media(max-width:900px){
@@ -776,7 +777,7 @@ function drawMap(list){
 }
 function hiPin(id, on){
   var el = document.getElementById("pin-"+id);
-  if(el) el.classList.toggle("sel", !!on);
+  if(el) el.classList.toggle("pinsel", !!on);
   var c = document.getElementById("card-"+id);
   if(c) c.classList.toggle("hl", !!on);
 }
