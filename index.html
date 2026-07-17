@@ -511,6 +511,18 @@ var SB = "https://gqhfgqiahynbedbzurzq.supabase.co/storage/v1/render/image/publi
    ============================================================ */
 var DEALS = [
   {
+    id:"berry", name:"3704 E Berry St", status:"active", addedDate:"2026-07-17", type:"house", market:"DFW",
+    street:"3704 E Berry St", city:"Fort Worth", state:"TX", zip:"76105", county:"Tarrant",
+    beds:3, baths:1, sqft:1092, year:1950, lot:"",
+    price:20000, arv:null, arvText:"Sub-To", spread:null,
+    subto:{entry:20000, monthly:1673.59, balance:179919, allin:199919},
+    lat:32.7138, lng:-97.2712, listingId:null, photoExt:"jpg",
+    photos:["photos/berry/01.jpg","photos/berry/02.jpg","photos/berry/03.jpg","photos/berry/04.jpg","photos/berry/05.jpg","photos/berry/06.jpg","photos/berry/07.jpg","photos/berry/08.jpg","photos/berry/09.jpg","photos/berry/10.jpg","photos/berry/11.jpg","photos/berry/12.jpg","photos/berry/13.jpg","photos/berry/14.jpg","photos/berry/15.jpg","photos/berry/16.jpg","photos/berry/17.jpg"],
+    desc:"Off-market <strong>subject-to opportunity in Fort Worth</strong> (76105, Tarrant County) &mdash; the East Berry / Stop Six corridor, minutes to I-820, US-287 and Loop 12. <strong>Take over the existing financing</strong> on this 3-bed / 1-bath, ~1,092 sqft single-family (built 1950) with just <strong>$20,000 down</strong> and assume the <strong>$179,919 balance at $1,673.59/mo</strong>. A low cash-in way to control a Fort Worth property &mdash; run your own numbers on rehab, rent and exit. All-in around <strong>$200K</strong> with financing already in place.",
+    cond:null,
+    terms:"<strong>Subject-To</strong> (existing financing stays in place) &nbsp;|&nbsp; $20,000 entry to take over &nbsp;|&nbsp; $1,673.59/mo &nbsp;|&nbsp; Balance $179,919 &nbsp;|&nbsp; Buyer takes title subject to the existing mortgage &nbsp;|&nbsp; Sold As-Is &nbsp;|&nbsp; Buyer to verify condition, taxes, insurance &amp; loan terms"
+  },
+  {
     id:"hodges", name:"8227 Wes Hodges Rd", status:"active", addedDate:"2026-07-10", type:"house", market:"DFW",
     street:"8227 Wes Hodges Rd", city:"Dallas", state:"TX", zip:"75217", county:"Dallas",
     beds:3, baths:1, sqft:1353, year:1950, lot:"7,803 sf (~0.18 ac)",
@@ -728,7 +740,7 @@ function cardHTML(d){
       '<span class="tag">'+esc(d.county)+' Co.</span>'+
     '</div>'+
     '<div class="cbody">'+
-      '<div class="cpricerow"><div class="cprice">'+money(d.price)+arv+'</div>'+saveHeart(d.id)+'</div>'+
+      '<div class="cpricerow"><div class="cprice">'+(d.subto?money(d.subto.entry)+'<span class="arv">SUB-TO &middot; '+money(d.subto.monthly)+'/mo</span>':money(d.price)+arv)+'</div>'+saveHeart(d.id)+'</div>'+
       '<div class="caddr">📍 '+addr+'</div>'+
       '<div class="cstats">'+stats+'</div>'+
       (urgencyChip(d)?'<div class="curg">'+urgencyChip(d)+'</div>':'')+
@@ -873,7 +885,13 @@ function modalHTML(d){
       (d.year?'<span class="chip">Built '+d.year+'</span>':'')+
       (d.lot?'<span class="chip">'+esc(d.lot)+' lot</span>':'');
 
-  var numbers = '<div class="numgrid">'+
+  var numbers = d.subto
+    ? '<div class="numgrid">'+
+        '<div class="numbox accent"><div class="nl">Entry Fee</div><div class="nv">'+moneyK(d.subto.entry)+'</div></div>'+
+        '<div class="numbox"><div class="nl">Monthly</div><div class="nv">'+money(d.subto.monthly)+'</div></div>'+
+        '<div class="numbox"><div class="nl">Loan Balance</div><div class="nv">'+moneyK(d.subto.balance)+'</div></div>'+
+      '</div>'
+    : '<div class="numgrid">'+
     '<div class="numbox accent"><div class="nl">Cash Price</div><div class="nv">'+moneyK(d.price)+'</div></div>'+
     '<div class="numbox"><div class="nl">ARV</div><div class="nv">'+(d.arv?d.arvText:esc(d.arvText))+'</div></div>'+
     (d.spread?'<div class="numbox"><div class="nl">Spread</div><div class="nv">~'+moneyK(d.spread)+'</div></div>'
@@ -895,9 +913,14 @@ function modalHTML(d){
 
   var aside =
     '<div class="maside"><div class="dealcard"><div class="top">'+
-      '<div class="row"><span class="k">Cash Price</span><span class="v big">'+money(d.price)+'</span></div>'+
-      '<div class="row"><span class="k">ARV</span><span class="v">'+(d.arv?money(d.arv):esc(d.arvText))+'</span></div>'+
-      (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':'')+
+      (d.subto
+        ? '<div class="row"><span class="k">Entry Fee</span><span class="v big">'+money(d.subto.entry)+'</span></div>'+
+          '<div class="row"><span class="k">Monthly Pmt</span><span class="v">'+money(d.subto.monthly)+'</span></div>'+
+          '<div class="row"><span class="k">Loan Balance</span><span class="v">'+money(d.subto.balance)+'</span></div>'+
+          '<div class="row"><span class="k">All-In</span><span class="v">&asymp; '+money(d.subto.allin)+'</span></div>'
+        : '<div class="row"><span class="k">Cash Price</span><span class="v big">'+money(d.price)+'</span></div>'+
+          '<div class="row"><span class="k">ARV</span><span class="v">'+(d.arv?money(d.arv):esc(d.arvText))+'</span></div>'+
+          (d.spread?'<div class="row"><span class="k">Est. Spread</span><span class="v">~'+money(d.spread)+'</span></div>':''))+
     '</div><div class="cta">'+
       (dealStatus(d)==="sold"
         ? '<button class="b1" disabled style="opacity:.55;cursor:default">✓ Sold</button>'
@@ -919,9 +942,9 @@ function modalHTML(d){
     '<div class="mbody"><div class="mmain">'+
       '<div class="statusrow">'+modalPill(d)+
         '<span style="color:var(--muted);font-size:13px;font-weight:600">Off-Market · '+esc(d.market)+'</span>'+urgencyChip(d)+'</div>'+
-      '<div class="bigprice">'+money(d.price)+'</div>'+
+      '<div class="bigprice">'+money(d.price)+(d.subto?' <span style="font-size:15px;color:var(--muted);font-weight:600">entry &middot; take over payments</span>':'')+'</div>'+
       addrLine +
-      '<p class="msub">'+(d.type==="land"?"Single-Family Build Lot":"Single-Family — Fix &amp; Flip / Rental")+'</p>'+
+      '<p class="msub">'+(d.type==="land"?"Single-Family Build Lot":(d.subto?"Single-Family — Subject-To / Take Over Payments":"Single-Family — Fix &amp; Flip / Rental"))+'</p>'+
       '<div class="mstats">'+stats+'</div>'+
       numbers +
       (dealStatus(d)!=="sold" ? '<div class="duebar">⏳ Offers reviewed <b>'+offersDue()+'</b> — serious cash buyers move first.</div>' : '')+
