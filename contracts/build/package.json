@@ -1,0 +1,11 @@
+{
+  "name": "spc-contracts-build",
+  "private": true,
+  "description": "Renders SPC Homes agreement markdown into signable DOCX and PDF",
+  "scripts": {
+    "build": "./build.sh"
+  },
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
+}
