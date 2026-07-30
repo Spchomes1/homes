@@ -50,25 +50,25 @@ closeList();
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title>
 <style>
-  @page { size: Letter; margin: 0.85in 0.95in 0.8in 0.95in; }
+  @page { size: Letter; margin: 0.6in 0.75in; }
   * { box-sizing: border-box; }
-  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.45;
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 9.5pt; line-height: 1.28;
          color: #111; margin: 0; }
-  .doctitle { text-align: center; font-size: 16pt; font-weight: 700; color: #15166b;
-              letter-spacing: .3px; text-transform: uppercase; margin: 0 0 4px; }
-  .rule { border: 0; border-top: 2px solid #15166b; margin: 0 0 16px; }
-  .brandbar { display: flex; justify-content: space-between; font-size: 8pt; color: #666;
+  .doctitle { text-align: center; font-size: 14pt; font-weight: 700; color: #15166b;
+              letter-spacing: .3px; text-transform: uppercase; margin: 0 0 3px; }
+  .rule { border: 0; border-top: 2px solid #15166b; margin: 0 0 10px; }
+  .brandbar { display: flex; justify-content: space-between; font-size: 7.5pt; color: #666;
               letter-spacing: .6px; text-transform: uppercase; border-bottom: 1px solid #ddd;
-              padding-bottom: 4px; margin-bottom: 14px; }
+              padding-bottom: 3px; margin-bottom: 9px; }
   .brandbar strong { color: #15166b; }
-  h2 { font-size: 11pt; color: #15166b; margin: 15px 0 5px; page-break-after: avoid; }
-  h3 { font-size: 10.5pt; margin: 11px 0 4px; page-break-after: avoid; }
-  p  { margin: 0 0 7px; text-align: left; orphans: 2; widows: 2; }
-  p.clause { padding-left: .35in; text-indent: -.35in; }
-  p.sig { text-align: left; margin: 0 0 9px; }
-  ul { margin: 0 0 8px; padding-left: .3in; }
-  li { margin: 0 0 4px; }
-  hr { border: 0; border-top: 1px solid #ccc; margin: 13px 0; }
+  h2 { font-size: 10pt; color: #15166b; margin: 10px 0 3px; page-break-after: avoid; }
+  h3 { font-size: 9.5pt; margin: 8px 0 3px; page-break-after: avoid; }
+  p  { margin: 0 0 5px; text-align: left; orphans: 2; widows: 2; }
+  p.clause { padding-left: .3in; text-indent: -.3in; }
+  p.sig { text-align: left; margin: 0 0 7px; }
+  ul { margin: 0 0 6px; padding-left: .28in; }
+  li { margin: 0 0 3px; }
+  hr { border: 0; border-top: 1px solid #ccc; margin: 9px 0; }
   .blank { letter-spacing: -.5px; }
   /* Footer sits in normal flow at the end. A position:fixed footer repeats unreliably in
      Chromium's print path and lands on top of body text partway through a long document. */
