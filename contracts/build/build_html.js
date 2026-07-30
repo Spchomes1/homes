@@ -70,7 +70,9 @@ const html = `<!doctype html>
   li { margin: 0 0 4px; }
   hr { border: 0; border-top: 1px solid #ccc; margin: 13px 0; }
   .blank { letter-spacing: -.5px; }
-  .foot { position: fixed; bottom: -0.55in; left: 0; right: 0; font-size: 7.5pt; color: #666;
+  /* Footer sits in normal flow at the end. A position:fixed footer repeats unreliably in
+     Chromium's print path and lands on top of body text partway through a long document. */
+  .foot { margin-top: 22px; font-size: 7.5pt; color: #666;
           border-top: 1px solid #ddd; padding-top: 4px; }
 </style></head>
 <body>
